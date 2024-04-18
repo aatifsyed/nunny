@@ -1,4 +1,7 @@
-use core::ops::{Deref, DerefMut};
+use core::{
+    array,
+    ops::{Deref, DerefMut},
+};
 
 use crate::Slice;
 
@@ -27,15 +30,46 @@ impl<const N: usize, T> Array<N, T> {
     }
 }
 
+impl<T> Array<1, T> {
+    pub fn of(item: T) -> Self {
+        match cfg!(debug_assertions) {
+            true => Self::new([item]).unwrap(),
+            false => unsafe { Self::new_unchecked([item]) },
+        }
+    }
+    pub fn of_mut(item: &mut T) -> &mut Self {
+        let src = array::from_mut(item);
+        match cfg!(debug_assertions) {
+            true => Self::new_mut(src).unwrap(),
+            false => unsafe { Self::new_mut_unchecked(src) },
+        }
+    }
+    pub fn of_ref(item: &T) -> &Self {
+        let src = array::from_ref(item);
+        match cfg!(debug_assertions) {
+            true => Self::new_ref(src).unwrap(),
+            false => unsafe { Self::new_ref_unchecked(src) },
+        }
+    }
+}
+
 impl<const N: usize, T> Array<N, T> {
     pub fn each_ref(&self) -> Array<N, &T> {
         Array {
-            inner: self.inner.each_ref(),
+            inner: self.as_array().each_ref(),
         }
     }
     pub fn each_mut(&mut self) -> Array<N, &mut T> {
         Array {
-            inner: self.inner.each_mut(),
+            inner: self.as_mut_array().each_mut(),
+        }
+    }
+    pub fn map<F, U>(self, f: F) -> Array<N, U>
+    where
+        F: FnMut(T) -> U,
+    {
+        Array {
+            inner: self.into_array().map(f),
         }
     }
 }
@@ -52,6 +86,16 @@ impl<const N: usize, T> Array<N, T> {
         // Safety
         // - src is not empty by construction
         unsafe { Slice::new_mut_unchecked(src) }
+    }
+    pub const fn as_array(&self) -> &[T; N] {
+        &self.inner
+    }
+    pub fn as_mut_array(&mut self) -> &mut [T; N] {
+        &mut self.inner
+    }
+    pub fn into_array(self) -> [T; N] {
+        let Self { inner } = self;
+        inner
     }
 }
 
