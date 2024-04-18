@@ -7,6 +7,7 @@
 extern crate alloc;
 
 mod array;
+mod mirror_std_conversion_api;
 mod slice;
 #[cfg(feature = "alloc")]
 mod vec;
