@@ -32,24 +32,16 @@ impl<const N: usize, T> Array<N, T> {
 
 impl<T> Array<1, T> {
     pub fn of(item: T) -> Self {
-        match cfg!(debug_assertions) {
-            true => Self::new([item]).unwrap(),
-            false => unsafe { Self::new_unchecked([item]) },
-        }
+        let src = [item];
+        unsafe { Self::new_unchecked(src) }
     }
     pub fn of_mut(item: &mut T) -> &mut Self {
         let src = array::from_mut(item);
-        match cfg!(debug_assertions) {
-            true => Self::new_mut(src).unwrap(),
-            false => unsafe { Self::new_mut_unchecked(src) },
-        }
+        unsafe { Self::new_mut_unchecked(src) }
     }
     pub fn of_ref(item: &T) -> &Self {
         let src = array::from_ref(item);
-        match cfg!(debug_assertions) {
-            true => Self::new_ref(src).unwrap(),
-            false => unsafe { Self::new_ref_unchecked(src) },
-        }
+        unsafe { Self::new_ref_unchecked(src) }
     }
 }
 

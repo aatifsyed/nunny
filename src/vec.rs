@@ -8,7 +8,7 @@ use core::{
     ops::{Deref, DerefMut},
 };
 
-use alloc::collections::TryReserveError;
+use alloc::{boxed::Box, collections::TryReserveError};
 
 use crate::{Error, Slice};
 
@@ -107,12 +107,33 @@ impl<T> Vec<T> {
         pub fn shrink_to(&mut self, min_capacity: usize);
     }
 
-    // pub fn into_boxed_slice(self) -> Box<NonEmpty<[T]>> { .. }
+    pub fn into_boxed_slice(self) -> Box<Slice<T>> {
+        match cfg!(debug_assertions) {
+            true => {
+                let src = self.into_vec().into_boxed_slice();
+                let len0 = src.len();
+                let ptr = Box::into_raw(src);
+                // Safety:
+                // - #[repr(transparent)]
+                let dst = unsafe { Box::from_raw(ptr as *mut Slice<T>) };
+                let len1 = dst.len().get();
+                assert_eq!(len0, len1);
+                dst
+            }
+            false => {
+                let ptr = Box::into_raw(self.into_vec().into_boxed_slice());
+                // Safety:
+                // - #[repr(transparent)]
+                unsafe { Box::from_raw(ptr as _) }
+            }
+        }
+    }
 
     pub fn truncate(&mut self, len: NonZeroUsize) {
         // Safety:
         // - len is not zero, so vector will not be emptied
-        unsafe { self.as_mut_vec() }.truncate(len.get())
+        unsafe { self.as_mut_vec() }.truncate(len.get());
+        self.check();
     }
 
     /// # Safety
@@ -120,39 +141,12 @@ impl<T> Vec<T> {
     pub unsafe fn set_len(&mut self, new_len: NonZeroUsize) {
         // Safety:
         // - len is not zero, so vector will not be emptied
-        unsafe { self.as_mut_vec() }.set_len(new_len.get())
-    }
-
-    /// # Panics
-    /// - If the vector would be left empty by this operation.
-    /// - If `index` is out of bounds
-    pub fn swap_remove(&mut self, index: usize) -> T {
-        assert_ne!(
-            self.as_vec().len(),
-            1,
-            "cannot remove from a nonempty vec of length 1"
-        );
-        // Safety:
-        // - removal cannot empty the vec if the above check succeeded
-        unsafe { self.as_mut_vec() }.remove(index)
+        unsafe { self.as_mut_vec() }.set_len(new_len.get());
+        self.check();
     }
 
     forward_mut! {
         pub fn insert(&mut self, index: usize, element: T);
-    }
-
-    /// # Panics
-    /// - If the vector would be left empty by this operation.
-    /// - If `index` is out of bounds.
-    pub fn remove(&mut self, index: usize) -> T {
-        assert_ne!(
-            self.as_vec().len(),
-            1,
-            "cannot remove from a nonempty vec of length 1"
-        );
-        // Safety:
-        // - removal cannot empty the vec if the above check succeeded
-        unsafe { self.as_mut_vec() }.remove(index)
     }
 
     pub fn dedup_by_key<F, K>(&mut self, key: F)
@@ -162,7 +156,8 @@ impl<T> Vec<T> {
     {
         // Safety:
         // - dedup always leaves the first element
-        unsafe { self.as_mut_vec() }.dedup_by_key(key)
+        unsafe { self.as_mut_vec() }.dedup_by_key(key);
+        self.check();
     }
     pub fn dedup_by<F>(&mut self, same_bucket: F)
     where
@@ -170,7 +165,8 @@ impl<T> Vec<T> {
     {
         // Safety:
         // - dedup always leaves the first element
-        unsafe { self.as_mut_vec() }.dedup_by(same_bucket)
+        unsafe { self.as_mut_vec() }.dedup_by(same_bucket);
+        self.check();
     }
     forward_mut! {
         pub fn push(&mut self, value: T);
@@ -186,7 +182,8 @@ impl<T> Vec<T> {
     {
         // Safety:
         // - new_len is not zero, so vec cannot be emptied
-        unsafe { self.as_mut_vec() }.resize_with(new_len.get(), f)
+        unsafe { self.as_mut_vec() }.resize_with(new_len.get(), f);
+        self.check();
     }
     pub fn leak<'a>(self) -> &'a mut Slice<T> {
         let inner = self.into_vec().leak();
