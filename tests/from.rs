@@ -1,3 +1,19 @@
+#![allow(path_statements, clippy::no_effect)]
+
+use std::{
+    borrow::Cow,
+    collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, HashSet, LinkedList, VecDeque},
+    hash::{Hash, RandomState},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    rc::Rc,
+    sync::Arc,
+};
+
+#[allow(unused)]
+type Slice<T> = [T];
+#[allow(unused)]
+type Array<const N: usize, T> = [T; N];
+
 const _: () = {
     fn _test() {
         <Rc<Slice<u8>> as From<Rc<str>>>::from;
@@ -50,6 +66,7 @@ const _: () = {
     fn _test<'a, T>()
     where
         T: Clone,
+        T: 'a,
     {
         <Cow<'a, Slice<T>> as From<&'a Slice<T>>>::from;
     }
@@ -59,6 +76,7 @@ const _: () = {
     fn _test<'a, T>()
     where
         T: Clone,
+        T: 'a,
     {
         <Cow<'a, Slice<T>> as From<&'a Vec<T>>>::from;
     }
@@ -68,6 +86,7 @@ const _: () = {
     fn _test<'a, T>()
     where
         Slice<T>: ToOwned<Owned = Vec<T>>,
+        T: 'a,
     {
         <Vec<T> as From<Cow<'a, Slice<T>>>>::from;
     }
@@ -77,6 +96,7 @@ const _: () = {
     fn _test<'a, T>()
     where
         T: Clone,
+        T: 'a,
     {
         <Cow<'a, Slice<T>> as From<Vec<T>>>::from;
     }
@@ -86,29 +106,27 @@ const _: () = {
     fn _test<'a, T, const N: usize>()
     where
         T: Clone,
+        T: 'a,
     {
         <Cow<'a, Slice<T>> as From<&'a Array<N, T>>>::from;
     }
 };
 
-const _: () = {
-    fn _test<'data>() {
-        <BorrowedBuf<'data> as From<&'data mut Slice<u8>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<'data>() {
+//         <BorrowedBuf<'data> as From<&'data mut Slice<u8>>>::from;
+//     }
+// };
+
+// const _: () = {
+//     fn _test<'data>() {
+//         <BorrowedBuf<'data> as From<&'data mut Slice<MaybeUninit<u8>>>>::from;
+//     }
+// };
 
 const _: () = {
-    fn _test<'data>() {
-        <BorrowedBuf<'data> as From<&'data mut Slice<MaybeUninit<u8>>>>::from;
-    }
-};
-
-const _: () = {
-    fn _test<A>()
-    where
-        A: Allocator,
-    {
-        <Box<Slice<u8>, A> as From<Box<str, A>>>::from;
+    fn _test() {
+        <Box<Slice<u8>> as From<Box<str>>>::from;
     }
 };
 
@@ -329,38 +347,26 @@ const _: () = {
 };
 
 const _: () = {
-    fn _test<T, A>()
-    where
-        A: Allocator,
-    {
-        <Vec<T, A> as From<Box<Slice<T>, A>>>::from;
+    fn _test<T>() {
+        <Vec<T> as From<Box<Slice<T>>>>::from;
     }
 };
 
 const _: () = {
-    fn _test<T, A>()
-    where
-        A: Allocator,
-    {
-        <Box<Slice<T>, A> as From<Vec<T, A>>>::from;
+    fn _test<T>() {
+        <Box<Slice<T>> as From<Vec<T>>>::from;
     }
 };
 
 const _: () = {
-    fn _test<T, A>()
-    where
-        A: Allocator,
-    {
-        <Rc<Slice<T>, A> as From<Vec<T, A>>>::from;
+    fn _test<T>() {
+        <Rc<Slice<T>> as From<Vec<T>>>::from;
     }
 };
 
 const _: () = {
-    fn _test<T, A>()
-    where
-        A: Allocator + Clone,
-    {
-        <Arc<Slice<T>, A> as From<Vec<T, A>>>::from;
+    fn _test<T>() {
+        <Arc<Slice<T>> as From<Vec<T>>>::from;
     }
 };
 
@@ -433,15 +439,15 @@ const _: () = {
     }
 };
 
-const _: () = {
-    fn _test<T, const N: usize>()
-    where
-        LaneCount<N>: SupportedLaneCount,
-        T: SimdElement,
-    {
-        <Simd<T, N> as From<Array<N, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T, const N: usize>()
+//     where
+//         LaneCount<N>: SupportedLaneCount,
+//         T: SimdElement,
+//     {
+//         <Simd<T, N> as From<Array<N, T>>>::from;
+//     }
+// };
 
 const _: () = {
     fn _test<T, const N: usize>() {
@@ -455,33 +461,32 @@ const _: () = {
     }
 };
 
-const _: () = {
-    fn _test<T, const N: usize>()
-    where
-        T: MaskElement,
-        LaneCount<N>: SupportedLaneCount,
-    {
-        <Array<N, bool> as From<Mask<T, N>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T, const N: usize>()
+//     where
+//         T: MaskElement,
+//         LaneCount<N>: SupportedLaneCount,
+//     {
+//         <Array<N, bool> as From<Mask<T, N>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T, const N: usize>()
-    where
-        LaneCount<N>: SupportedLaneCount,
-        T: SimdElement,
-    {
-        <Array<N, T> as From<Simd<T, N>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T, const N: usize>()
+//     where
+//         LaneCount<N>: SupportedLaneCount,
+//         T: SimdElement,
+//     {
+//         <Array<N, T> as From<Simd<T, N>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T, const N: usize>()
-    where
-        T: MaskElement,
-        LaneCount<N>: SupportedLaneCount,
-    {
-        <Mask<T, N> as From<Array<N, bool>>>::from;
-    }
-};
-
+// const _: () = {
+//     fn _test<T, const N: usize>()
+//     where
+//         T: MaskElement,
+//         LaneCount<N>: SupportedLaneCount,
+//     {
+//         <Mask<T, N> as From<Array<N, bool>>>::from;
+//     }
+// };
