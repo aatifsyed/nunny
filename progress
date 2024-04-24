@@ -3,7 +3,6 @@
 "[T; N]" -> "Rc<[T]>" [label = "From"]
 "[T; N]" -> "Vec<T>" [label = "From"]
 "[T; N]" -> "VecDeque<T>" [label = "From"]
-
 "&'a [T; N]" -> "Cow<'a, [T]>" [label = "From"]
 "&'a [T]" -> "&'a [T; N]" [label = "TryFrom"]
 "&'a [T]" -> "Cow<'a, [T]>" [label = "From"]
@@ -14,6 +13,7 @@
 "&[T]" -> "Arc<[T]>" [label = "From"]
 "&[T]" -> "Box<[T]>" [label = "From"]
 "&[T]" -> "Rc<[T]>" [label = "From"]
+
 "&[T]" -> "Vec<T>" [label = "From"]
 "&mut [T; N]" -> "Vec<T>" [label = "From"]
 "&mut [T]" -> "[T; N]" [label = "TryFrom where T: Copy"]

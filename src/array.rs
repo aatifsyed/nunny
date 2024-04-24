@@ -21,6 +21,7 @@ impl<const N: usize, T> Array<N, T> {
     crate::transmuting! {
         const new_ref_unchecked(&[T; N]) -> &Self;
         new_mut_unchecked(&mut [T; N]) -> &mut Self;
+        // const new_unchecked([T; N]) -> Self; // compiler can't tell this is OK
     }
 
     /// # Safety
