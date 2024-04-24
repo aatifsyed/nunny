@@ -1,4 +1,3 @@
-use anyhow::bail;
 use clap::Parser;
 use owo_colors::OwoColorize as _;
 use proc_macro2::TokenStream;
@@ -55,8 +54,7 @@ fn main() -> anyhow::Result<()> {
             Ok(None) => eprintln!("{}", "skip".yellow()),
             Err(e) => {
                 let e = syn_miette::Error::new(e, text).render();
-                eprintln!("{}", e);
-                bail!(e);
+                eprintln!("{}", e.red());
             }
         }
     }
