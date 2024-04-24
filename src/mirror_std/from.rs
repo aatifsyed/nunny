@@ -13,13 +13,15 @@
 //! - Switch the types from the standard library to our libraries.
 //! - Write implementations _in the same order_ in this file.
 
+#[cfg(feature = "std")]
 use core::hash::Hash;
-
+#[cfg(feature = "std")]
 use std::{
     collections::{HashMap, HashSet},
     hash::RandomState,
 };
 
+#[cfg(feature = "alloc")]
 use alloc::{
     borrow::{Cow, ToOwned},
     boxed::Box,
@@ -28,8 +30,10 @@ use alloc::{
     sync::Arc,
 };
 
+#[cfg(feature = "alloc")]
 use crate::{Array, Slice, Vec};
 
+#[cfg(feature = "alloc")]
 impl<'a, T> From<&'a Slice<T>> for Cow<'a, Slice<T>>
 where
     T: Clone,
@@ -39,6 +43,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<'a, T> From<&'a Vec<T>> for Cow<'a, Slice<T>>
 where
     T: Clone,
@@ -48,6 +53,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<'a, T> From<Cow<'a, Slice<T>>> for Vec<T>
 where
     Slice<T>: ToOwned<Owned = Vec<T>>,
@@ -57,6 +63,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<'a, T> From<Vec<T>> for Cow<'a, Slice<T>>
 where
     T: Clone,
@@ -66,6 +73,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<'a, const N: usize, T> From<&'a Array<N, T>> for Cow<'a, Slice<T>>
 where
     T: Clone,
@@ -75,6 +83,7 @@ where
     }
 }
 
+#[cfg(feature = "std")]
 impl<const N: usize, K, V> From<Array<N, (K, V)>> for HashMap<K, V, RandomState>
 where
     K: Eq + Hash,
@@ -84,6 +93,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, K, V> From<Array<N, (K, V)>> for BTreeMap<K, V>
 where
     K: Ord,
@@ -93,6 +103,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> From<&Slice<T>> for Box<Slice<T>>
 where
     T: Clone,
@@ -103,6 +114,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> From<&Slice<T>> for Rc<Slice<T>>
 where
     T: Clone,
@@ -113,6 +125,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> From<&Slice<T>> for Arc<Slice<T>>
 where
     T: Clone,
@@ -123,6 +136,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> From<&Slice<T>> for Vec<T>
 where
     T: Clone,
@@ -133,6 +147,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> From<&mut Slice<T>> for Vec<T>
 where
     T: Clone,
@@ -143,6 +158,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> From<Cow<'_, Slice<T>>> for Box<Slice<T>>
 where
     T: Clone,
@@ -152,6 +168,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> From<Box<Slice<T>>> for Vec<T> {
     fn from(value: Box<Slice<T>>) -> Self {
         let value = Box::into_raw(value);
@@ -161,24 +178,28 @@ impl<T> From<Box<Slice<T>>> for Vec<T> {
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> From<Vec<T>> for Box<Slice<T>> {
     fn from(value: Vec<T>) -> Self {
         value.into_boxed_slice()
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> From<Vec<T>> for Rc<Slice<T>> {
     fn from(value: Vec<T>) -> Self {
         value.into_boxed_slice().into()
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T> From<Vec<T>> for Arc<Slice<T>> {
     fn from(value: Vec<T>) -> Self {
         value.into_boxed_slice().into()
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, T> From<&Array<N, T>> for Vec<T>
 where
     T: Clone,
@@ -188,6 +209,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, T> From<&mut Array<N, T>> for Vec<T>
 where
     T: Clone,
@@ -197,6 +219,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, T> From<Array<N, T>> for Box<Slice<T>> {
     fn from(value: Array<N, T>) -> Self {
         let value = Box::<[T]>::from(value.into_array());
@@ -204,6 +227,7 @@ impl<const N: usize, T> From<Array<N, T>> for Box<Slice<T>> {
     }
 }
 
+#[cfg(feature = "std")]
 impl<const N: usize, T> From<Array<N, T>> for HashSet<T, RandomState>
 where
     T: Eq + Hash,
@@ -213,6 +237,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, T> From<Array<N, T>> for BTreeSet<T>
 where
     T: Ord,
@@ -222,6 +247,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, T> From<Array<N, T>> for BinaryHeap<T>
 where
     T: Ord,
@@ -231,18 +257,21 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, T> From<Array<N, T>> for LinkedList<T> {
     fn from(value: Array<N, T>) -> Self {
         value.into_iter().collect()
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, T> From<Array<N, T>> for VecDeque<T> {
     fn from(value: Array<N, T>) -> Self {
         value.into_iter().collect()
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, T> From<Array<N, T>> for Rc<Slice<T>> {
     fn from(value: Array<N, T>) -> Self {
         let value = Rc::<[T]>::from(value.into_array());
@@ -251,6 +280,7 @@ impl<const N: usize, T> From<Array<N, T>> for Rc<Slice<T>> {
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, T> From<Array<N, T>> for Arc<Slice<T>> {
     fn from(value: Array<N, T>) -> Self {
         let value = Arc::<[T]>::from(value.into_array());
@@ -258,6 +288,7 @@ impl<const N: usize, T> From<Array<N, T>> for Arc<Slice<T>> {
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<const N: usize, T> From<Array<N, T>> for Vec<T> {
     fn from(value: Array<N, T>) -> Self {
         let value = alloc::vec::Vec::from(value.into_array());

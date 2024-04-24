@@ -14,8 +14,11 @@
 //! - Switch the types from the standard library to our libraries.
 //! - Write implementations _in the same order_ in this file.
 
+#[cfg(feature = "alloc")]
 use crate::Vec;
 use crate::{Array, Slice};
+#[cfg(feature = "alloc")]
+use alloc::boxed::Box;
 // use alloc::{rc::Rc, sync::Arc};
 
 pub struct TryFromSliceError(());
@@ -54,6 +57,7 @@ impl<'a, T, const N: usize> TryFrom<&'a mut Slice<T>> for &'a mut Array<N, T> {
 //     }
 // }
 
+#[cfg(feature = "alloc")]
 impl<T, const N: usize> TryFrom<Vec<T>> for Array<N, T> {
     type Error = Vec<T>;
 
@@ -92,6 +96,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<N, T>> {
     type Error = Box<Slice<T>>;
 
@@ -111,6 +116,7 @@ impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<N, T>> {
 //     }
 // }
 
+#[cfg(feature = "alloc")]
 impl<T, const N: usize> TryFrom<Vec<T>> for Box<Array<N, T>> {
     type Error = Vec<T>;
 
@@ -127,6 +133,7 @@ impl<T, const N: usize> TryFrom<Vec<T>> for Box<Array<N, T>> {
 /// # Safety
 ///
 /// `boxed_slice.len()` must be exactly `N`.
+#[cfg(feature = "alloc")]
 unsafe fn boxed_slice_as_array_unchecked<T, const N: usize>(
     boxed_slice: Box<Slice<T>>,
 ) -> Box<Array<N, T>> {

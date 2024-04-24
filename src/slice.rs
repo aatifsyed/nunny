@@ -38,10 +38,7 @@ impl<T> Slice<T> {
         unsafe { Self::new_mut_unchecked(shared) }
     }
     const fn check(&self) {
-        #[cfg(debug_assertions)]
-        if self.inner.is_empty() {
-            panic!("Slice was empty!")
-        }
+        debug_assert!(!self.inner.is_empty());
     }
 }
 
@@ -271,7 +268,7 @@ mod iter {
     }
 
     #[cfg(feature = "alloc")]
-    impl<T> IntoIterator for Box<Slice<T>> {
+    impl<T> IntoIterator for alloc::boxed::Box<Slice<T>> {
         type Item = T;
 
         type IntoIter = alloc::vec::IntoIter<T>;
@@ -283,7 +280,7 @@ mod iter {
 }
 
 #[cfg(feature = "alloc")]
-impl<T> ToOwned for Slice<T>
+impl<T> alloc::borrow::ToOwned for Slice<T>
 where
     T: Clone,
 {
