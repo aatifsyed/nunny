@@ -270,6 +270,17 @@ mod iter {
             self.as_mut_slice().iter_mut()
         }
     }
+
+    #[cfg(feature = "alloc")]
+    impl<T> IntoIterator for Box<Slice<T>> {
+        type Item = T;
+
+        type IntoIter = alloc::vec::IntoIter<T>;
+
+        fn into_iter(self) -> Self::IntoIter {
+            crate::Vec::<T>::from(self).into_iter()
+        }
+    }
 }
 
 #[cfg(feature = "alloc")]
