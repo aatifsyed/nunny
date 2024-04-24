@@ -26,8 +26,8 @@ impl<T> Vec<T> {
         new_mut(&mut alloc::vec::Vec<T>) -> &mut Self: Self::new_mut_unchecked;
     }
     crate::transmuting! {
-        const new_unchecked(alloc::vec::Vec<T>) -> Self;
-        const new_ref_unchecked(&alloc::vec::Vec<T>) -> &Self;
+        new_unchecked(alloc::vec::Vec<T>) -> Self;
+        new_ref_unchecked(&alloc::vec::Vec<T>) -> &Self;
         new_mut_unchecked(&mut alloc::vec::Vec<T>) -> &mut Self;
     }
     pub fn of(item: T) -> Self {
@@ -36,16 +36,10 @@ impl<T> Vec<T> {
     pub fn with_capacity(item: T, capacity: usize) -> Self {
         let mut inner = alloc::vec::Vec::with_capacity(capacity);
         inner.push(item);
-        debug_assert_eq!(inner.len(), 1);
-        // Safety:
-        // - len is 1
         unsafe { Self::new_unchecked(inner) }
     }
     fn check(&self) {
-        #[cfg(debug_assertions)]
-        if self.inner.is_empty() {
-            panic!("Vec was empty!")
-        }
+        debug_assert_ne!(self.inner.len(), 0)
     }
 }
 
@@ -89,13 +83,7 @@ macro_rules! forward_mut {
 impl<T> Vec<T> {
     pub fn capacity(&self) -> NonZeroUsize {
         self.check();
-        if cfg!(debug_assertions) {
-            NonZeroUsize::new(self.as_vec().capacity()).unwrap()
-        } else {
-            // Safety:
-            // - length != 0 so capacity != zero
-            unsafe { NonZeroUsize::new_unchecked(self.as_vec().capacity()) }
-        }
+        unsafe { crate::non_zero_usize(self.as_vec().capacity()) }
     }
 
     forward_mut! {
@@ -124,7 +112,7 @@ impl<T> Vec<T> {
                 let ptr = Box::into_raw(self.into_vec().into_boxed_slice());
                 // Safety:
                 // - #[repr(transparent)]
-                unsafe { Box::from_raw(ptr as _) }
+                unsafe { Box::from_raw(ptr as *mut Slice<T>) }
             }
         }
     }

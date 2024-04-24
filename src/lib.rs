@@ -20,7 +20,7 @@ pub use slice::Slice;
 #[cfg(feature = "alloc")]
 pub use vec::Vec;
 
-use core::fmt;
+use core::{fmt, hint::unreachable_unchecked, num::NonZeroUsize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Error<T = ()>(T);
@@ -41,6 +41,7 @@ macro_rules! transmuting {
         /// # Safety
         /// - `src` must not be empty
         pub const unsafe fn $ident(src: $in) -> $out {
+            debug_assert!(!src.is_empty());
             // Safety
             // - #[repr(transparent)]
             unsafe { core::mem::transmute(src) }
@@ -52,6 +53,7 @@ macro_rules! transmuting {
         /// # Safety
         /// - `src` must not be empty
         pub unsafe fn $ident(src: $in) -> $out {
+            debug_assert!(!src.is_empty());
             // Safety
             // - #[repr(transparent)]
             unsafe { core::mem::transmute(src) }
@@ -91,3 +93,13 @@ macro_rules! map_non_empty {
     };
 }
 pub(crate) use map_non_empty;
+
+const unsafe fn non_zero_usize(n: usize) -> NonZeroUsize {
+    match NonZeroUsize::new(n) {
+        Some(it) => it,
+        None => match cfg!(debug_assertions) {
+            true => unreachable!(),
+            false => unsafe { unreachable_unchecked() },
+        },
+    }
+}

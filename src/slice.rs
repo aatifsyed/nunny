@@ -64,9 +64,12 @@ macro_rules! forward {
             pub const fn $ident(&self) -> $ty {
                 match self.as_slice().$ident() {
                     Some(it) => it,
-                    // Safety:
-                    // - cannot create an empty slice without unsafe
-                    None => unsafe { unreachable_unchecked() },
+                    None => match cfg!(debug_assertions) {
+                        true => unreachable!(),
+                        // Safety:
+                        // - cannot create an empty slice without unsafe
+                        false => unsafe { unreachable_unchecked() },
+                    },
                 }
             }
         )*
@@ -79,9 +82,12 @@ macro_rules! forward_mut {
             pub fn $ident(&mut self) -> $ty {
                 match self.as_mut_slice().$ident() {
                     Some(it) => it,
-                    // Safety:
-                    // - cannot create an empty slice without unsafe
-                    None => unsafe { unreachable_unchecked() },
+                    None => match cfg!(debug_assertions) {
+                        true => unreachable!(),
+                        // Safety:
+                        // - cannot create an empty slice without unsafe
+                        false => unsafe { unreachable_unchecked() },
+                    },
                 }
             }
         )*
@@ -91,14 +97,7 @@ macro_rules! forward_mut {
 /// Shimmed methods for std::primitive::slice
 impl<T> Slice<T> {
     pub const fn len(&self) -> NonZeroUsize {
-        if cfg!(debug_assertions) {
-            match NonZeroUsize::new(self.as_slice().len()) {
-                Some(it) => it,
-                None => panic!("Slice was empty!"),
-            }
-        } else {
-            unsafe { NonZeroUsize::new_unchecked(self.as_slice().len()) }
-        }
+        unsafe { crate::non_zero_usize(self.inner.len()) }
     }
     forward! {
         pub const fn first(&self) -> &T;
