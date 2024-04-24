@@ -10,7 +10,7 @@ use core::{
 
 use alloc::{boxed::Box, collections::TryReserveError};
 
-use crate::{Error, Slice};
+use crate::Slice;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
@@ -272,63 +272,6 @@ mod against_primitives {
             self.as_slice().as_slice().partial_cmp(other)
         }
     }
-
-    // TryFrom &[T]/&mut [T]
-    impl<T> TryFrom<&[T]> for Vec<T>
-    where
-        T: Clone,
-    {
-        type Error = Error;
-
-        fn try_from(value: &[T]) -> Result<Self, Self::Error> {
-            let inner = <&Slice<_>>::try_from(value)?;
-            Ok(inner.into())
-        }
-    }
-    impl<T> TryFrom<&mut [T]> for Vec<T>
-    where
-        T: Clone,
-    {
-        type Error = Error;
-
-        fn try_from(value: &mut [T]) -> Result<Self, Self::Error> {
-            let inner = <&Slice<_>>::try_from(&*value)?;
-            Ok(inner.into())
-        }
-    }
-    // TryFrom &[T; N]/&mut [T; N]
-    impl<const N: usize, T> TryFrom<&[T; N]> for Vec<T>
-    where
-        T: Clone,
-    {
-        type Error = Error;
-
-        fn try_from(value: &[T; N]) -> Result<Self, Self::Error> {
-            let inner = <&Slice<_>>::try_from(value)?;
-            Ok(inner.into())
-        }
-    }
-    impl<const N: usize, T> TryFrom<&mut [T; N]> for Vec<T>
-    where
-        T: Clone,
-    {
-        type Error = Error;
-
-        fn try_from(value: &mut [T; N]) -> Result<Self, Self::Error> {
-            let inner = <&Slice<_>>::try_from(&*value)?;
-            Ok(inner.into())
-        }
-    }
-
-    // TryFrom [T; N]
-    impl<const N: usize, T> TryFrom<[T; N]> for Vec<T> {
-        type Error = Error;
-
-        fn try_from(value: [T; N]) -> Result<Self, Self::Error> {
-            let inner = alloc::vec::Vec::from(value);
-            Self::try_from(inner)
-        }
-    }
 }
 
 mod against_nonempty {
@@ -375,30 +318,6 @@ mod against_nonempty {
             self.as_slice().partial_cmp(other)
         }
     }
-
-    // From &Slice<T>/&mut Slice<T>
-    impl<T> From<&Slice<T>> for Vec<T>
-    where
-        T: Clone,
-    {
-        fn from(value: &Slice<T>) -> Self {
-            let inner = alloc::vec::Vec::from(value.as_slice());
-            // Safety:
-            // - inner is nonempty by construction
-            unsafe { Self::new_unchecked(inner) }
-        }
-    }
-    impl<T> From<&mut Slice<T>> for Vec<T>
-    where
-        T: Clone,
-    {
-        fn from(value: &mut Slice<T>) -> Self {
-            let inner = alloc::vec::Vec::from(value.as_slice());
-            // Safety:
-            // - inner is nonempty by construction
-            unsafe { Self::new_unchecked(inner) }
-        }
-    }
 }
 
 mod against_std {
@@ -418,14 +337,6 @@ mod against_std {
     {
         fn partial_cmp(&self, other: &alloc::vec::Vec<T>) -> Option<Ordering> {
             self.as_vec().partial_cmp(other)
-        }
-    }
-
-    impl<T> TryFrom<alloc::vec::Vec<T>> for Vec<T> {
-        type Error = Error;
-
-        fn try_from(value: alloc::vec::Vec<T>) -> Result<Self, Self::Error> {
-            Self::new(value).ok_or(Error(()))
         }
     }
 }

@@ -1,66 +1,66 @@
+//! See the documentation in `mirror_std/from.rs` for an explanation.
+
 #![allow(path_statements, clippy::no_effect)]
 
 use std::{
     borrow::Cow,
     collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, HashSet, LinkedList, VecDeque},
     hash::{Hash, RandomState},
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
     rc::Rc,
     sync::Arc,
 };
 
-#[allow(unused)]
-type Slice<T> = [T];
-#[allow(unused)]
-type Array<const N: usize, T> = [T; N];
+use nunny::Array;
+use nunny::Slice;
+use nunny::Vec;
 
-const _: () = {
-    fn _test() {
-        <Rc<Slice<u8>> as From<Rc<str>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test() {
+//         <Rc<Slice<u8>> as From<Rc<str>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test() {
-        <Arc<Slice<u8>> as From<Arc<str>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test() {
+//         <Arc<Slice<u8>> as From<Arc<str>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test() {
-        <IpAddr as From<Array<4, u8>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test() {
+//         <IpAddr as From<Array<4, u8>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test() {
-        <Ipv4Addr as From<Array<4, u8>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test() {
+//         <Ipv4Addr as From<Array<4, u8>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test() {
-        <IpAddr as From<Array<16, u8>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test() {
+//         <IpAddr as From<Array<16, u8>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test() {
-        <Ipv6Addr as From<Array<16, u8>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test() {
+//         <Ipv6Addr as From<Array<16, u8>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test() {
-        <IpAddr as From<Array<8, u16>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test() {
+//         <IpAddr as From<Array<8, u16>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test() {
-        <Ipv6Addr as From<Array<8, u16>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test() {
+//         <Ipv6Addr as From<Array<8, u16>>>::from;
+//     }
+// };
 
 const _: () = {
     fn _test<'a, T>()
@@ -124,11 +124,11 @@ const _: () = {
 //     }
 // };
 
-const _: () = {
-    fn _test() {
-        <Box<Slice<u8>> as From<Box<str>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test() {
+//         <Box<Slice<u8>> as From<Box<str>>>::from;
+//     }
+// };
 
 const _: () = {
     fn _test<K, V, const N: usize>()
@@ -202,149 +202,149 @@ const _: () = {
     }
 };
 
-const _: () = {
-    fn _test<T>() {
-        <(T,) as From<Array<1, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T,) as From<Array<1, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T) as From<Array<2, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T) as From<Array<2, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T, T) as From<Array<3, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T, T) as From<Array<3, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T, T, T) as From<Array<4, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T, T, T) as From<Array<4, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T, T, T, T) as From<Array<5, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T, T, T, T) as From<Array<5, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T, T, T, T, T) as From<Array<6, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T, T, T, T, T) as From<Array<6, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T, T, T, T, T, T) as From<Array<7, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T, T, T, T, T, T) as From<Array<7, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T, T, T, T, T, T, T) as From<Array<8, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T, T, T, T, T, T, T) as From<Array<8, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T, T, T, T, T, T, T, T) as From<Array<9, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T, T, T, T, T, T, T, T) as From<Array<9, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T, T, T, T, T, T, T, T, T) as From<Array<10, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T, T, T, T, T, T, T, T, T) as From<Array<10, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T, T, T, T, T, T, T, T, T, T) as From<Array<11, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T, T, T, T, T, T, T, T, T, T) as From<Array<11, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <(T, T, T, T, T, T, T, T, T, T, T, T) as From<Array<12, T>>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <(T, T, T, T, T, T, T, T, T, T, T, T) as From<Array<12, T>>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<2, T> as From<(T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<2, T> as From<(T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<3, T> as From<(T, T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<3, T> as From<(T, T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<4, T> as From<(T, T, T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<4, T> as From<(T, T, T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<5, T> as From<(T, T, T, T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<5, T> as From<(T, T, T, T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<6, T> as From<(T, T, T, T, T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<6, T> as From<(T, T, T, T, T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<7, T> as From<(T, T, T, T, T, T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<7, T> as From<(T, T, T, T, T, T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<8, T> as From<(T, T, T, T, T, T, T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<8, T> as From<(T, T, T, T, T, T, T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<9, T> as From<(T, T, T, T, T, T, T, T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<9, T> as From<(T, T, T, T, T, T, T, T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<10, T> as From<(T, T, T, T, T, T, T, T, T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<10, T> as From<(T, T, T, T, T, T, T, T, T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<11, T> as From<(T, T, T, T, T, T, T, T, T, T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<11, T> as From<(T, T, T, T, T, T, T, T, T, T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<12, T> as From<(T, T, T, T, T, T, T, T, T, T, T, T)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<12, T> as From<(T, T, T, T, T, T, T, T, T, T, T, T)>>::from;
+//     }
+// };
 
-const _: () = {
-    fn _test<T>() {
-        <Array<1, T> as From<(T,)>>::from;
-    }
-};
+// const _: () = {
+//     fn _test<T>() {
+//         <Array<1, T> as From<(T,)>>::from;
+//     }
+// };
 
 const _: () = {
     fn _test<T>() {

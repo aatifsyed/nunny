@@ -271,3 +271,15 @@ mod iter {
         }
     }
 }
+
+#[cfg(feature = "alloc")]
+impl<T> ToOwned for Slice<T>
+where
+    T: Clone,
+{
+    type Owned = crate::Vec<T>;
+
+    fn to_owned(&self) -> Self::Owned {
+        self.into()
+    }
+}

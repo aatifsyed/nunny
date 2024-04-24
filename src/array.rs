@@ -104,3 +104,13 @@ impl<const N: usize, T> DerefMut for Array<N, T> {
         self.as_mut_slice()
     }
 }
+
+impl<const N: usize, T> IntoIterator for Array<N, T> {
+    type Item = T;
+
+    type IntoIter = core::array::IntoIter<T, N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.into_array().into_iter()
+    }
+}
