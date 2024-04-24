@@ -233,16 +233,6 @@ mod against_self {
             self
         }
     }
-
-    // PartialEq<U> Slice<T>
-    impl<T, U> PartialEq<Slice<U>> for Slice<T>
-    where
-        T: PartialEq<U>,
-    {
-        fn eq(&self, other: &Slice<U>) -> bool {
-            self.as_slice().eq(other.as_slice())
-        }
-    }
 }
 
 mod iter {

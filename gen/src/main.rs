@@ -44,9 +44,7 @@ fn main() -> anyhow::Result<()> {
                     shebang: None,
                     attrs: vec![],
                     items: vec![syn::parse_quote! {
-                        const _: () = {
-                            #it
-                        };
+                        #it
                     }],
                 });
                 println!("{}", rendered.green())
@@ -172,14 +170,17 @@ fn select(mut impl_: Impl, method: &Ident) -> Option<TokenStream> {
         .collect::<Punctuated<_, Token![,]>>();
 
     let test = quote! {
-        fn _test
-            #lt_token
-            #params
-            #gt_token
-        ()
+        impl
+        #lt_token
+        #params
+        #gt_token
+            #trait_<#src>
+        for #dst
         #where_clause
         {
-            <#dst as #trait_<#src>>::#method;
+            fn #method(&self, other: &#src) -> bool {
+                todo!()
+            }
         }
     };
     Some(test)

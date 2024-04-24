@@ -7,7 +7,7 @@
 //! Here's the methodology:
 //! - Use the `gen` tool in this repository to scrape rustdoc
 //!   (HTML, not JSON - it's much easier)
-//! - Output the `test/from.rs` file in this repository.
+//! - Output the `test/try_from.rs` file in this repository.
 //!   This is effectively a description of the standard library conversions.
 //! - Redact unstable items, and conversions we can't implement because we're
 //!   not std.

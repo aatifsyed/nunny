@@ -9,6 +9,7 @@ extern crate alloc;
 mod array;
 mod mirror_std {
     mod from;
+    mod partial_eq;
     mod try_from;
 }
 mod slice;

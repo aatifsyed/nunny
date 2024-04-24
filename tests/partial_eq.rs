@@ -2,8 +2,7 @@
 
 use std::{borrow::Cow, collections::VecDeque};
 
-type Slice<T> = [T];
-type Array<const N: usize, T> = [T; N];
+use nunny::{Array, Slice};
 
 const _: () = {
     fn _test<A, B>()
