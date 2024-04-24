@@ -290,14 +290,7 @@ mod against_nonempty {
     }
 
     // PartialEq<U>/PartialOrd Slice<T>
-    impl<T, U> PartialEq<Slice<U>> for Vec<T>
-    where
-        T: PartialEq<U>,
-    {
-        fn eq(&self, other: &Slice<U>) -> bool {
-            self.as_slice().eq(other)
-        }
-    }
+
     impl<T> PartialOrd<Slice<T>> for Vec<T>
     where
         T: PartialOrd,

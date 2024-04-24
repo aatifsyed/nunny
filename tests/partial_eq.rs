@@ -2,7 +2,7 @@
 
 use std::{borrow::Cow, collections::VecDeque};
 
-use nunny::{Array, Slice};
+use nunny::{Array, Slice, Vec};
 
 const _: () = {
     fn _test<A, B>()

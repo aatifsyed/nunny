@@ -5,7 +5,7 @@ use core::{
 
 use crate::Slice;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct Array<const N: usize, T> {
     inner: [T; N],
