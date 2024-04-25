@@ -1,5 +1,4 @@
 use core::{
-    hint::unreachable_unchecked,
     iter::IntoIterator,
     num::NonZeroUsize,
     ops::{Deref, DerefMut},
@@ -58,12 +57,9 @@ macro_rules! forward {
             pub const fn $ident(&self) -> $ty {
                 match self.as_slice().$ident() {
                     Some(it) => it,
-                    None => match cfg!(debug_assertions) {
-                        true => unreachable!(),
-                        // Safety:
-                        // - cannot create an empty slice without unsafe
-                        false => unsafe { unreachable_unchecked() },
-                    },
+                    // Safety:
+                    // - cannot create empty slice without `unsafe`
+                    None => unsafe { crate::unreachable() },
                 }
             }
         )*
@@ -76,12 +72,9 @@ macro_rules! forward_mut {
             pub fn $ident(&mut self) -> $ty {
                 match self.as_mut_slice().$ident() {
                     Some(it) => it,
-                    None => match cfg!(debug_assertions) {
-                        true => unreachable!(),
-                        // Safety:
-                        // - cannot create an empty slice without unsafe
-                        false => unsafe { unreachable_unchecked() },
-                    },
+                    // Safety:
+                    // - cannot create empty slice without `unsafe`
+                    None => unsafe { crate::unreachable() },
                 }
             }
         )*

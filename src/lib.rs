@@ -22,7 +22,7 @@ pub use slice::Slice;
 #[cfg(feature = "alloc")]
 pub use vec::Vec;
 
-use core::{convert::Infallible, fmt, hint::unreachable_unchecked, num::NonZeroUsize};
+use core::{convert::Infallible, fmt, num::NonZeroUsize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Error<T = ()>(T);
@@ -152,10 +152,14 @@ pub(crate) use slice_iter;
 const unsafe fn non_zero_usize(n: usize) -> NonZeroUsize {
     match NonZeroUsize::new(n) {
         Some(it) => it,
-        None => match cfg!(debug_assertions) {
-            true => unreachable!(),
-            false => unsafe { unreachable_unchecked() },
-        },
+        None => unreachable(),
+    }
+}
+
+const unsafe fn unreachable() -> ! {
+    match cfg!(debug_assertions) {
+        true => unreachable(),
+        false => unsafe { core::hint::unreachable_unchecked() },
     }
 }
 
