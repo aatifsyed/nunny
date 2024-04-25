@@ -16,8 +16,13 @@ alloc = ["serde1?/alloc"]
 # Changing it to `serde2` is not considered a breaking change
 serde = ["serde1"]
 serde1 = ["dep:serde1"]
+# This feature will always track the latest (API) version of arbitrary.
+# Changing it to `arbitrary2` is not considered a breaking change
+arbitrary = ["arbitrary1"]
+arbitrary1 = ["dep:arbitrary1", "std"]
 
 [dependencies]
+arbitrary1 = { version = "1.3.2", package = "arbitrary", optional = true }
 serde1 = { version = "1.0.198", package = "serde", optional = true, default-features = false }
 
 [workspace]

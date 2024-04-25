@@ -5,6 +5,8 @@
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
+#[cfg(feature = "arbitrary1")]
+mod arbitrary1;
 #[cfg(feature = "serde1")]
 mod serde1;
 
