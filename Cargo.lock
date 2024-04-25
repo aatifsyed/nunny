@@ -565,7 +565,7 @@ dependencies = [
 
 [[package]]
 name = "nunny"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "arbitrary",
  "proptest",
