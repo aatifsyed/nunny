@@ -268,6 +268,10 @@ mod against_std {
     }
 }
 
+crate::slice_iter! {
+    <T> for Vec<T>
+}
+
 mod iter {
     use super::*;
     impl<T> IntoIterator for Vec<T> {
@@ -277,24 +281,6 @@ mod iter {
 
         fn into_iter(self) -> Self::IntoIter {
             self.into_vec().into_iter()
-        }
-    }
-    impl<'a, T> IntoIterator for &'a Vec<T> {
-        type Item = &'a T;
-
-        type IntoIter = core::slice::Iter<'a, T>;
-
-        fn into_iter(self) -> Self::IntoIter {
-            self.iter()
-        }
-    }
-    impl<'a, T> IntoIterator for &'a mut Vec<T> {
-        type Item = &'a mut T;
-
-        type IntoIter = core::slice::IterMut<'a, T>;
-
-        fn into_iter(self) -> Self::IntoIter {
-            self.iter_mut()
         }
     }
     impl<'a, T> Extend<&'a T> for Vec<T>

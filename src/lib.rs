@@ -127,6 +127,27 @@ macro_rules! borrow_borrow_mut {
 }
 pub(crate) use borrow_borrow_mut;
 
+macro_rules! slice_iter {
+    (<$ty_param:ident $(, const $const_param:ident: usize)?> for $self:ty) => {
+        impl<'a, $ty_param $(, const $const_param: usize)?> ::core::iter::IntoIterator for &'a $self {
+            type Item = &'a $ty_param;
+            type IntoIter = ::core::slice::Iter<'a, T>;
+            fn into_iter(self) -> Self::IntoIter {
+                self.iter()
+            }
+        }
+
+        impl<'a, $ty_param $(, const $const_param: usize)?> ::core::iter::IntoIterator for &'a mut $self {
+            type Item = &'a mut $ty_param;
+            type IntoIter = ::core::slice::IterMut<'a, T>;
+            fn into_iter(self) -> Self::IntoIter {
+                self.iter_mut()
+            }
+        }
+    };
+}
+pub(crate) use slice_iter;
+
 const unsafe fn non_zero_usize(n: usize) -> NonZeroUsize {
     match NonZeroUsize::new(n) {
         Some(it) => it,

@@ -130,38 +130,18 @@ crate::borrow_borrow_mut! {
     <T> for Slice<T> as [T];
 }
 
-mod iter {
-    use super::*;
-    use core::slice::{Iter, IterMut};
+crate::slice_iter! {
+    <T> for Slice<T>
+}
 
-    impl<'a, T> IntoIterator for &'a Slice<T> {
-        type Item = &'a T;
+#[cfg(feature = "alloc")]
+impl<T> IntoIterator for alloc::boxed::Box<Slice<T>> {
+    type Item = T;
 
-        type IntoIter = Iter<'a, T>;
+    type IntoIter = alloc::vec::IntoIter<T>;
 
-        fn into_iter(self) -> Self::IntoIter {
-            self.iter()
-        }
-    }
-    impl<'a, T> IntoIterator for &'a mut Slice<T> {
-        type Item = &'a mut T;
-
-        type IntoIter = IterMut<'a, T>;
-
-        fn into_iter(self) -> Self::IntoIter {
-            self.iter_mut()
-        }
-    }
-
-    #[cfg(feature = "alloc")]
-    impl<T> IntoIterator for alloc::boxed::Box<Slice<T>> {
-        type Item = T;
-
-        type IntoIter = alloc::vec::IntoIter<T>;
-
-        fn into_iter(self) -> Self::IntoIter {
-            crate::Vec::<T>::from(self).into_iter()
-        }
+    fn into_iter(self) -> Self::IntoIter {
+        crate::Vec::<T>::from(self).into_iter()
     }
 }
 

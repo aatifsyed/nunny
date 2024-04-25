@@ -116,35 +116,16 @@ crate::borrow_borrow_mut! {
     <T, const N: usize> for Array<N, T> as Slice<T>;
 }
 
-mod iter {
-    use super::*;
-    use core::slice::{Iter, IterMut};
+crate::slice_iter! {
+    <T, const N: usize> for Array<N, T>
+}
 
-    impl<'a, T, const N: usize> IntoIterator for &'a Array<N, T> {
-        type Item = &'a T;
+impl<const N: usize, T> IntoIterator for Array<N, T> {
+    type Item = T;
 
-        type IntoIter = Iter<'a, T>;
+    type IntoIter = core::array::IntoIter<T, N>;
 
-        fn into_iter(self) -> Self::IntoIter {
-            self.iter()
-        }
-    }
-    impl<'a, T, const N: usize> IntoIterator for &'a mut Array<N, T> {
-        type Item = &'a mut T;
-
-        type IntoIter = IterMut<'a, T>;
-
-        fn into_iter(self) -> Self::IntoIter {
-            self.iter_mut()
-        }
-    }
-    impl<const N: usize, T> IntoIterator for Array<N, T> {
-        type Item = T;
-
-        type IntoIter = core::array::IntoIter<T, N>;
-
-        fn into_iter(self) -> Self::IntoIter {
-            self.into_array().into_iter()
-        }
+    fn into_iter(self) -> Self::IntoIter {
+        self.into_array().into_iter()
     }
 }
