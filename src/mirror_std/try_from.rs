@@ -60,6 +60,8 @@ impl<T, const N: usize> TryFrom<Vec<T>> for Array<N, T> {
     type Error = Vec<T>;
 
     fn try_from(value: Vec<T>) -> Result<Self, Self::Error> {
+        // Safety:
+        // - already non-empty by construction
         match value.into_vec().try_into() {
             Ok(it) => Ok(unsafe { Array::new_unchecked(it) }),
             Err(it) => Err(unsafe { Vec::new_unchecked(it) }),
@@ -74,6 +76,8 @@ where
     type Error = TryFromSliceError;
 
     fn try_from(value: &Slice<T>) -> Result<Self, Self::Error> {
+        // Safety:
+        // - already non-empty by construction
         match value.as_slice().try_into() {
             Ok(it) => Ok(unsafe { Array::new_unchecked(it) }),
             Err(_) => Err(TryFromSliceError(())),
@@ -87,6 +91,8 @@ where
     type Error = TryFromSliceError;
 
     fn try_from(value: &mut Slice<T>) -> Result<Self, Self::Error> {
+        // Safety:
+        // - already non-empty by construction
         match value.as_mut_slice().try_into() {
             Ok(it) => Ok(unsafe { Array::new_unchecked(it) }),
             Err(_) => Err(TryFromSliceError(())),
@@ -99,6 +105,8 @@ impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<N, T>> {
     type Error = Box<Slice<T>>;
 
     fn try_from(value: Box<Slice<T>>) -> Result<Self, Self::Error> {
+        // Safety:
+        // - already checked len
         match value.len().get() == N {
             true => Ok(unsafe { boxed_slice_as_array_unchecked(value) }),
             false => Err(value),
@@ -119,6 +127,8 @@ impl<T, const N: usize> TryFrom<Vec<T>> for Box<Array<N, T>> {
     type Error = Vec<T>;
 
     fn try_from(value: Vec<T>) -> Result<Self, Self::Error> {
+        // Safety:
+        // - already checked len
         match value.len().get() == N {
             true => Ok(unsafe { boxed_slice_as_array_unchecked(value.into_boxed_slice()) }),
             false => Err(value),

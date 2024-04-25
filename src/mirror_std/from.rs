@@ -110,6 +110,9 @@ where
 {
     fn from(value: &Slice<T>) -> Self {
         let value = Box::<[T]>::from(value.as_slice());
+        // Safety:
+        // - transmuting is safe because #[repr(transparent)]
+        // - already non-empty by construction
         unsafe { Box::<Slice<T>>::from_raw(Box::into_raw(value) as *mut Slice<T>) }
     }
 }
@@ -121,6 +124,9 @@ where
 {
     fn from(value: &Slice<T>) -> Self {
         let src = Rc::<[T]>::from(value.as_slice());
+        // Safety:
+        // - transmuting is safe because #[repr(transparent)]
+        // - already non-empty by construction
         unsafe { Rc::<Slice<T>>::from_raw(Rc::into_raw(src) as *mut Slice<T>) }
     }
 }
@@ -132,6 +138,9 @@ where
 {
     fn from(value: &Slice<T>) -> Self {
         let value = Arc::<[T]>::from(value.as_slice());
+        // Safety:
+        // - transmuting is safe because #[repr(transparent)]
+        // - already non-empty by construction
         unsafe { Arc::<Slice<T>>::from_raw(Arc::into_raw(value) as *const Slice<T>) }
     }
 }
@@ -143,6 +152,8 @@ where
 {
     fn from(value: &Slice<T>) -> Self {
         let value = alloc::vec::Vec::from(value.as_slice());
+        // Safety:
+        // - already non-empty by construction
         unsafe { Self::new_unchecked(value) }
     }
 }
@@ -154,6 +165,8 @@ where
 {
     fn from(value: &mut Slice<T>) -> Self {
         let value = alloc::vec::Vec::from(value.as_slice());
+        // Safety:
+        // - already non-empty by construction
         unsafe { Self::new_unchecked(value) }
     }
 }
@@ -172,8 +185,12 @@ where
 impl<T> From<Box<Slice<T>>> for Vec<T> {
     fn from(value: Box<Slice<T>>) -> Self {
         let value = Box::into_raw(value);
+        // Safety:
+        // - transmuting is safe because #[repr(transparent)]
         let value = unsafe { Box::from_raw(value as *mut [T]) };
         let value = alloc::vec::Vec::from(value);
+        // Safety:
+        // - already non-empty by construction
         unsafe { Self::new_unchecked(value) }
     }
 }
@@ -223,6 +240,8 @@ where
 impl<const N: usize, T> From<Array<N, T>> for Box<Slice<T>> {
     fn from(value: Array<N, T>) -> Self {
         let value = Box::<[T]>::from(value.into_array());
+        // Safety:
+        // - transmuting is safe because #[repr(transparent)]
         unsafe { Box::<Slice<T>>::from_raw(Box::into_raw(value) as *mut Slice<T>) }
     }
 }
@@ -276,6 +295,8 @@ impl<const N: usize, T> From<Array<N, T>> for Rc<Slice<T>> {
     fn from(value: Array<N, T>) -> Self {
         let value = Rc::<[T]>::from(value.into_array());
         let value = Rc::into_raw(value);
+        // Safety:
+        // - transmuting is safe because #[repr(transparent)]
         unsafe { Rc::from_raw(value as *const Slice<T>) }
     }
 }
@@ -284,6 +305,8 @@ impl<const N: usize, T> From<Array<N, T>> for Rc<Slice<T>> {
 impl<const N: usize, T> From<Array<N, T>> for Arc<Slice<T>> {
     fn from(value: Array<N, T>) -> Self {
         let value = Arc::<[T]>::from(value.into_array());
+        // Safety:
+        // - transmuting is safe because #[repr(transparent)]
         unsafe { Arc::<Slice<T>>::from_raw(Arc::into_raw(value) as *const Slice<T>) }
     }
 }
@@ -292,6 +315,8 @@ impl<const N: usize, T> From<Array<N, T>> for Arc<Slice<T>> {
 impl<const N: usize, T> From<Array<N, T>> for Vec<T> {
     fn from(value: Array<N, T>) -> Self {
         let value = alloc::vec::Vec::from(value.into_array());
+        // Safety:
+        // - already non-empty by construction
         unsafe { Vec::new_unchecked(value) }
     }
 }
