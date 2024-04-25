@@ -3,13 +3,9 @@ use core::{
     ops::{Deref, DerefMut},
 };
 
-use crate::Slice;
+use crate::{Array, Slice};
 
-#[derive(Debug, Clone, Copy, Eq, Hash)]
-#[repr(transparent)]
-pub struct Array<T, const N: usize> {
-    inner: [T; N],
-}
+impl<T, const N: usize> Eq for Array<T, N> where T: Eq {}
 
 /// Creation
 impl<const N: usize, T> Array<T, N> {

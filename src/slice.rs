@@ -4,11 +4,9 @@ use core::{
     slice,
 };
 
-#[derive(Debug, Eq, Hash)]
-#[repr(transparent)]
-pub struct Slice<T> {
-    inner: [T],
-}
+use crate::Slice;
+
+impl<T> Eq for Slice<T> where T: Eq {}
 
 /// Creation
 impl<T> Slice<T> {

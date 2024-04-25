@@ -6,12 +6,16 @@ use core::{
 
 use alloc::{boxed::Box, collections::TryReserveError};
 
-use crate::Slice;
+use crate::{Slice, Vec};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[repr(transparent)]
-pub struct Vec<T> {
-    inner: alloc::vec::Vec<T>,
+impl<T> Eq for Vec<T> where T: Eq {}
+impl<T, U> PartialEq<Vec<U>> for Vec<T>
+where
+    T: PartialEq<U>,
+{
+    fn eq(&self, other: &Vec<U>) -> bool {
+        <[_] as PartialEq<[U]>>::eq(self, other)
+    }
 }
 
 /// Constructors

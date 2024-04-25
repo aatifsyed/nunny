@@ -17,15 +17,21 @@ mod slice;
 #[cfg(feature = "alloc")]
 mod vec;
 
-pub use array::Array;
-pub use slice::Slice;
-#[cfg(feature = "alloc")]
-pub use vec::Vec;
-
 use core::{convert::Infallible, fmt, num::NonZeroUsize};
 
+#[derive(Debug, Clone, Copy, Hash)]
+#[repr(transparent)]
+pub struct NonEmpty<T: ?Sized> {
+    inner: T,
+}
+
+pub type Array<T, const N: usize> = NonEmpty<[T; N]>;
+pub type Slice<T> = NonEmpty<[T]>;
+#[cfg(feature = "alloc")]
+pub type Vec<T> = NonEmpty<alloc::vec::Vec<T>>;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Error<T = ()>(T);
+pub struct Error(());
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
