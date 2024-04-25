@@ -6,7 +6,7 @@ where
     T: Arbitrary,
 {
     fn arbitrary(g: &mut quickcheck1::Gen) -> Self {
-        let mut it = Vec::one(T::arbitrary(g));
+        let mut it = Vec::of(T::arbitrary(g));
         it.extend(alloc::vec::Vec::arbitrary(g));
         it
     }
@@ -21,7 +21,7 @@ where
     T: Arbitrary,
 {
     fn arbitrary(g: &mut quickcheck1::Gen) -> Self {
-        let mut it = Vec::one(T::arbitrary(g));
+        let mut it = Vec::of(T::arbitrary(g));
         it.extend(alloc::vec::Vec::arbitrary(g));
         it.into_boxed_slice()
     }

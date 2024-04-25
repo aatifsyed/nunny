@@ -10,6 +10,8 @@ impl<T, const N: usize> Eq for Array<T, N> where T: Eq {}
 /// Creation
 impl<const N: usize, T> Array<T, N> {
     crate::map_non_empty! {
+        /// Create a new reference to an array.
+        /// If you have special knowledge of the array
         new_ref(&[T; N]) -> &Self: Self::new_ref_unchecked;
         new_mut(&mut [T; N]) -> &mut Self: Self::new_mut_unchecked;
     }
@@ -81,67 +83,63 @@ impl<const N: usize, T> Array<T, N> {
 }
 
 impl<T> Array<T, 1> {
-    pub const fn one(item: T) -> Self {
+    pub const fn of(item: T) -> Self {
         let src = [item];
         unsafe { Self::new_unchecked(src) }
     }
-    pub fn one_mut(item: &mut T) -> &mut Self {
+    pub fn of_mut(item: &mut T) -> &mut Self {
         let src = array::from_mut(item);
         unsafe { Self::new_mut_unchecked(src) }
     }
-    pub const fn one_ref(item: &T) -> &Self {
+    pub const fn of_ref(item: &T) -> &Self {
         let src = array::from_ref(item);
         unsafe { Self::new_ref_unchecked(src) }
     }
 }
 
-macro_rules! array_of {
-    (one) => {
-        /// These methods are provided for fixed arrays where length is:
-        /// - an integer in the range 1..=256
-        /// - powers of two ..=65536
-        impl<T> Array<T, 1> {
-            pub const fn of(src: [T; 1]) -> Self {
-                // Safety:
-                // - N is not zero
-                unsafe { Self::new_unchecked(src) }
-            }
-            pub fn of_mut(src: &mut [T; 1]) -> &mut Self {
-                // Safety:
-                // - N is not zero
-                unsafe { Self::new_mut_unchecked(src) }
-            }
-            pub fn of_ref(src: &[T; 1]) -> &Self {
-                // Safety:
-                // - N is not zero
-                unsafe { Self::new_ref_unchecked(src) }
-            }
-        }
-    };
+/// These methods are provided as a convenience for fixed arrays where length is:
+/// - any number `1..=256`
+/// - powers of two `..=65536`
+impl Array<(), 0> {
+    /// Create an array for a known non-zero array
+    pub fn exact<A: Exact>(item: A) -> A::Out {
+        item.exact()
+    }
+    pub fn exact_ref<A: Exact>(item: &A) -> &A::Out {
+        item.exact_ref()
+    }
+    pub fn exact_mut<A: Exact>(item: &mut A) -> &mut A::Out {
+        item.exact_mut()
+    }
+}
+
+/// See impl block on [`Array::exact`]
+pub trait Exact {
+    type Out;
+    fn exact(self) -> Self::Out;
+    fn exact_ref(&self) -> &Self::Out;
+    fn exact_mut(&mut self) -> &mut Self::Out;
+}
+
+macro_rules! impl_exact {
     ($n:literal) => {
-        #[doc(hidden)]
         #[allow(clippy::zero_prefixed_literal)]
-        impl<T> Array<T, $n> {
-            pub const fn of(src: [T; $n]) -> Self {
-                // Safety:
-                // - N is not zero
-                unsafe { Self::new_unchecked(src) }
+        impl<T> Exact for [T; $n] {
+            type Out = Array<T, $n>;
+            fn exact(self) -> Self::Out {
+                unsafe { Array::new_unchecked(self) }
             }
-            pub fn of_mut(src: &mut [T; $n]) -> &mut Self {
-                // Safety:
-                // - N is not zero
-                unsafe { Self::new_mut_unchecked(src) }
+            fn exact_ref(&self) -> &Self::Out {
+                unsafe { Array::new_ref_unchecked(self) }
             }
-            pub fn of_ref(src: &[T; $n]) -> &Self {
-                // Safety:
-                // - N is not zero
-                unsafe { Self::new_ref_unchecked(src) }
+            fn exact_mut(&mut self) -> &mut Self::Out {
+                unsafe { Array::new_mut_unchecked(self) }
             }
         }
     };
 }
 
-crate::for_nonzeroes!(array_of);
+crate::for_nonzeroes!(impl_exact);
 
 impl<const N: usize, T> Deref for Array<T, N> {
     type Target = Slice<T>;

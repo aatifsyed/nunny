@@ -19,7 +19,7 @@ where
     T: Arbitrary<'a>,
 {
     fn arbitrary(u: &mut arbitrary1::Unstructured<'a>) -> arbitrary1::Result<Self> {
-        let mut it = Vec::one(u.arbitrary::<T>()?);
+        let mut it = Vec::of(u.arbitrary::<T>()?);
         for item in u.arbitrary_iter()? {
             it.push(item?)
         }

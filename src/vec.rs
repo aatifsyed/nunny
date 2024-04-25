@@ -35,10 +35,10 @@ impl<T> Vec<T> {
             false => Err(src),
         }
     }
-    pub fn one(item: T) -> Self {
-        Self::one_with_capacity(item, 1)
+    pub fn of(item: T) -> Self {
+        Self::of_with_capacity(item, 1)
     }
-    pub fn one_with_capacity(item: T, capacity: usize) -> Self {
+    pub fn of_with_capacity(item: T, capacity: usize) -> Self {
         let mut inner = alloc::vec::Vec::with_capacity(capacity);
         inner.push(item);
         unsafe { Self::new_unchecked(inner) }

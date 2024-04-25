@@ -4,11 +4,11 @@
 //! - Nonempty-by-construction API
 //!   ```
 //!   # use nunny::NonEmpty;
-//!   let mut my_vec = NonEmpty::<Vec<_>>::one("hello"); // construct once
-//!   my_vec.push("world");                              // continue using your normal APIs
-//!   let hello: &str = my_vec.first();                  // preserve the guarantee that there is at least one element
+//!   let mut my_vec = NonEmpty::<Vec<_>>::of("hello"); // construct once
+//!   my_vec.push("world");                             // continue using your normal APIs
+//!   let hello: &str = my_vec.first();                 // preserve the guarantee that there is at least one element
 //!   ```
-//! - `#[repr(transparent)]` allows advanced usecases and guarantees optimum performance:
+//! - `#[repr(transparent)]` allows advanced usecases and guarantees optimum performance[^1]:
 //!   ```
 //!   # use nunny::NonEmpty;
 //!   let src = &mut ["hello", "world"];
@@ -17,10 +17,39 @@
 //!   let world: &str = ne.last();
 //!   ```
 //! - Total API coverage.
-//!   For every impl of [`From`], [`TryFrom`], [`PartialEq`] and [`PartialOrd`] in [`std`][^1],
+//!   For every impl of [`From`], [`TryFrom`], [`PartialEq`] and [`PartialOrd`] in [`std`][^2],
 //!   there is a corresponding impl in this library for [`Slice`], [`Array`] and [`Vec`].
+//!   _This includes more exotic types_:
+//!   ```
+//!   # use nunny::{vec, NonEmpty};
+//!   # use std::{borrow::Cow, sync::Arc};
+//!   let nun: Box<NonEmpty<[_]>> = vec![0xDEAD, 0xBEEF].into();
+//!   let cow: Cow<NonEmpty<[_]>> = (&*nun).into();
+//!   let arc: Arc<NonEmpty<[_]>> = cow.into_owned().into();
+//!   ```
+//! - `const`-friendly API. Where possible, all methods are `const`.
+//!   ```
+//!   # use nunny::{NonEmpty, slice};
+//!   const TWO: &NonEmpty<[&str]> = slice!["together", "forever"];
+//!   const FIRST: &str = TWO.first();
+//!   const ONE: &NonEmpty<[&str]> = NonEmpty::<[_]>::of(&"lonely");
+//!   ```
+//! - Extensive feature gating supporting:
+//!   - `no-std` environments with no allocator.
+//!   - `alloc`-enabled environments.
+//!   - full-`std`-enabled environments.
+//!   - interaction with crates like [`serde`](serde1) and [`arbitrary`](arbitrary1).
+//! - Thoughtful design:
+//!   - [`NonZeroUsize`] is inserted [where](Slice::len) [appropriate](Vec::truncate).
+//!   - Everything [`Deref`](core::ops::Deref)/[`DerefMut`](core::ops::DerefMut)s
+//!     down to a [`NonEmpty<Slice<T>>`], which in turn `deref/mut`s down to a `[T]`.
+//!   - Liberal applications of [`cmp`](core::cmp), [`borrow`](core::borrow), [`convert`](core::convert)
+//!     traits.
+//!     If there's a missing API that you'd like, please raise an issue!
 //!
-//! [^1]: Barring impls on `!#[fundamental]` types like [`Arc`](std::sync::Arc).
+//! [^1]: Other crates like [`nonempty`](https://docs.rs/nonempty/latest/nonempty/struct.NonEmpty.html)
+//!       require an indirection.
+//! [^2]: Barring impls on `!#[fundamental]` types like [`Arc`](std::sync::Arc).
 //!       Fun fact: our tests were generated from [`std`]'s rustdoc!
 
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -62,6 +91,51 @@ pub type Slice<T> = NonEmpty<[T]>;
 /// Type alias to save keystrokes
 #[cfg(feature = "alloc")]
 pub type Vec<T> = NonEmpty<alloc::vec::Vec<T>>;
+
+#[macro_export]
+macro_rules! slice {
+    ($($el:expr),+ $(,)?) => {
+        // Safety:
+        // - `+` guarantees that at least one item is given
+        unsafe {
+            $crate::Slice::new_unchecked(&[$($el),*])
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! slice_mut {
+    ($($el:expr),+ $(,)?) => {
+        // Safety:
+        // - `+` guarantees that at least one item is given
+        unsafe {
+            $crate::Slice::new_mut_unchecked(&mut [$($el),*])
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! array {
+    ($($el:expr),+ $(,)?) => {
+        // Safety:
+        // - `+` guarantees that at least one item is given
+        unsafe {
+            $crate::Array::new_unchecked([$($el),*])
+        }
+    };
+}
+
+#[cfg(feature = "alloc")]
+#[macro_export]
+macro_rules! vec {
+    ($($el:expr),+ $(,)?) => {
+        // Safety:
+        // - `+` guarantees that at least one item is given
+        $crate::Vec::from(unsafe {
+            $crate::Array::new_unchecked([$($el),*])
+        })
+    };
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Error(());
@@ -197,7 +271,6 @@ macro_rules! define_for_nonzeroes {
         /// Usage: special case `one` for documentation
         macro_rules! for_nonzeroes {
             ($dollar callback:ident) => {
-                $dollar callback!(one);
                 $(
                     $dollar callback!($n);
                 )*
@@ -209,7 +282,7 @@ macro_rules! define_for_nonzeroes {
 
 define_for_nonzeroes!($
     // 0..256
-/* 1 */	002	003	004	005	006	007	008	009	010
+    001	002	003	004	005	006	007	008	009	010
     011	012	013	014	015	016	017	018	019	020
     021	022	023	024	025	026	027	028	029	030
     031	032	033	034	035	036	037	038	039	040
