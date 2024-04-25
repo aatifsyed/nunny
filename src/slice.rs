@@ -6,7 +6,7 @@ use core::{
     slice,
 };
 
-#[derive(Debug, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Eq, Hash)]
 #[repr(transparent)]
 pub struct Slice<T> {
     inner: [T],
@@ -176,6 +176,7 @@ mod partial_eq_std {
             <[_] as PartialEq<[_]>>::eq(self, other)
         }
     }
+    #[cfg(feature = "alloc")]
     impl<T, U> PartialEq<alloc::vec::Vec<U>> for Slice<T>
     where
         T: PartialEq<U>,

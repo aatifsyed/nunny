@@ -10,7 +10,7 @@ use alloc::{boxed::Box, collections::TryReserveError};
 
 use crate::Slice;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[repr(transparent)]
 pub struct Vec<T> {
     inner: alloc::vec::Vec<T>,

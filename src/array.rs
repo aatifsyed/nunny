@@ -5,7 +5,7 @@ use core::{
 
 use crate::Slice;
 
-#[derive(Debug, Clone, Copy, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, Eq, Hash)]
 #[repr(transparent)]
 pub struct Array<const N: usize, T> {
     inner: [T; N],
@@ -149,6 +149,7 @@ mod partial_eq_std {
             <[_] as PartialEq<[_]>>::eq(self, other)
         }
     }
+    #[cfg(feature = "alloc")]
     impl<T, U, const N: usize> PartialEq<alloc::vec::Vec<U>> for Array<N, T>
     where
         T: PartialEq<U>,
