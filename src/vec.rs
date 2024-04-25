@@ -210,15 +210,6 @@ crate::borrow_borrow_mut! {
 mod against_primitives {
     use super::*;
 
-    // PartialEq<U>/PartialOrd [T]
-    impl<T, U> PartialEq<[U]> for Vec<T>
-    where
-        T: PartialEq<U>,
-    {
-        fn eq(&self, other: &[U]) -> bool {
-            self.as_slice().as_slice().eq(other)
-        }
-    }
     impl<T> PartialOrd<[T]> for Vec<T>
     where
         T: PartialOrd,
@@ -228,15 +219,6 @@ mod against_primitives {
         }
     }
 
-    // PartialEq<U>/PartialOrd [T; N]
-    impl<const N: usize, T, U> PartialEq<[U; N]> for Vec<T>
-    where
-        T: PartialEq<U>,
-    {
-        fn eq(&self, other: &[U; N]) -> bool {
-            self.as_slice().as_slice().eq(other)
-        }
-    }
     impl<const N: usize, T> PartialOrd<[T; N]> for Vec<T>
     where
         T: PartialOrd,
@@ -250,14 +232,6 @@ mod against_primitives {
 mod against_std {
     use super::*;
 
-    impl<T, U> PartialEq<alloc::vec::Vec<U>> for Vec<T>
-    where
-        T: PartialEq<U>,
-    {
-        fn eq(&self, other: &alloc::vec::Vec<U>) -> bool {
-            self.as_vec().eq(other)
-        }
-    }
     impl<T> PartialOrd<alloc::vec::Vec<T>> for Vec<T>
     where
         T: PartialOrd,
@@ -298,6 +272,35 @@ mod iter {
             // Safety:
             // - append-only operation
             unsafe { self.as_mut_vec() }.extend(iter)
+        }
+    }
+}
+
+mod partial_eq_std {
+    use super::*;
+
+    impl<T, U> PartialEq<[U]> for Vec<T>
+    where
+        T: PartialEq<U>,
+    {
+        fn eq(&self, other: &[U]) -> bool {
+            <[_] as PartialEq<[_]>>::eq(self, other)
+        }
+    }
+    impl<T, U, const N: usize> PartialEq<[U; N]> for Vec<T>
+    where
+        T: PartialEq<U>,
+    {
+        fn eq(&self, other: &[U; N]) -> bool {
+            <[_] as PartialEq<[_]>>::eq(self, other)
+        }
+    }
+    impl<T, U> PartialEq<alloc::vec::Vec<U>> for Vec<T>
+    where
+        T: PartialEq<U>,
+    {
+        fn eq(&self, other: &alloc::vec::Vec<U>) -> bool {
+            <[_] as PartialEq<[_]>>::eq(self, other)
         }
     }
 }

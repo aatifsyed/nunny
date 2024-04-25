@@ -156,3 +156,32 @@ where
         self.into()
     }
 }
+
+mod partial_eq_std {
+    use super::*;
+
+    impl<T, U> PartialEq<[U]> for Slice<T>
+    where
+        T: PartialEq<U>,
+    {
+        fn eq(&self, other: &[U]) -> bool {
+            <[_] as PartialEq<[_]>>::eq(self, other)
+        }
+    }
+    impl<T, U, const N: usize> PartialEq<[U; N]> for Slice<T>
+    where
+        T: PartialEq<U>,
+    {
+        fn eq(&self, other: &[U; N]) -> bool {
+            <[_] as PartialEq<[_]>>::eq(self, other)
+        }
+    }
+    impl<T, U> PartialEq<alloc::vec::Vec<U>> for Slice<T>
+    where
+        T: PartialEq<U>,
+    {
+        fn eq(&self, other: &alloc::vec::Vec<U>) -> bool {
+            <[_] as PartialEq<[_]>>::eq(self, other)
+        }
+    }
+}
