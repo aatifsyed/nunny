@@ -17,7 +17,6 @@ pub struct Vec<T> {
 /// Constructors
 impl<T> Vec<T> {
     crate::map_non_empty! {
-        new(alloc::vec::Vec<T>) -> Self: Self::new_unchecked;
         new_ref(&alloc::vec::Vec<T>) -> &Self: Self::new_ref_unchecked;
         new_mut(&mut alloc::vec::Vec<T>) -> &mut Self: Self::new_mut_unchecked;
     }
@@ -25,6 +24,12 @@ impl<T> Vec<T> {
         new_unchecked(alloc::vec::Vec<T>) -> Self;
         new_ref_unchecked(&alloc::vec::Vec<T>) -> &Self;
         new_mut_unchecked(&mut alloc::vec::Vec<T>) -> &mut Self;
+    }
+    pub fn new(src: alloc::vec::Vec<T>) -> Result<Self, alloc::vec::Vec<T>> {
+        match src.is_empty() {
+            true => Ok(unsafe { Self::new_unchecked(src) }),
+            false => Err(src),
+        }
     }
     pub fn of(item: T) -> Self {
         Self::with_capacity(item, 1)
@@ -352,6 +357,45 @@ mod cmp_std {
     {
         fn partial_cmp(&self, other: &Vec<T>) -> Option<Ordering> {
             <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+}
+
+mod convert_std {
+    use crate::Error;
+
+    use super::*;
+
+    impl<T> TryFrom<alloc::vec::Vec<T>> for Vec<T> {
+        type Error = alloc::vec::Vec<T>;
+
+        fn try_from(value: alloc::vec::Vec<T>) -> Result<Self, Self::Error> {
+            Vec::new(value)
+        }
+    }
+    impl<'a, T> TryFrom<&'a alloc::vec::Vec<T>> for &'a Vec<T> {
+        type Error = Error;
+
+        fn try_from(value: &'a alloc::vec::Vec<T>) -> Result<Self, Self::Error> {
+            Vec::new_ref(value).ok_or(Error(()))
+        }
+    }
+    impl<'a, T> TryFrom<&'a mut alloc::vec::Vec<T>> for &'a mut Vec<T> {
+        type Error = Error;
+
+        fn try_from(value: &'a mut alloc::vec::Vec<T>) -> Result<Self, Self::Error> {
+            Vec::new_mut(value).ok_or(Error(()))
+        }
+    }
+
+    impl<T> From<Vec<T>> for alloc::vec::Vec<T> {
+        fn from(value: Vec<T>) -> Self {
+            value.into_vec()
+        }
+    }
+    impl<'a, T> From<&'a Vec<T>> for &'a alloc::vec::Vec<T> {
+        fn from(value: &'a Vec<T>) -> Self {
+            value.as_vec()
         }
     }
 }

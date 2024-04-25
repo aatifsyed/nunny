@@ -268,3 +268,35 @@ mod cmp_std {
         }
     }
 }
+
+mod convert_std {
+    use crate::Error;
+
+    use super::*;
+
+    impl<'a, T> TryFrom<&'a [T]> for &'a Slice<T> {
+        type Error = Error;
+
+        fn try_from(value: &'a [T]) -> Result<Self, Self::Error> {
+            Slice::new(value).ok_or(Error(()))
+        }
+    }
+    impl<'a, T> TryFrom<&'a mut [T]> for &'a mut Slice<T> {
+        type Error = Error;
+
+        fn try_from(value: &'a mut [T]) -> Result<Self, Self::Error> {
+            Slice::new_mut(value).ok_or(Error(()))
+        }
+    }
+
+    impl<'a, T> From<&'a Slice<T>> for &'a [T] {
+        fn from(value: &'a Slice<T>) -> Self {
+            value.as_slice()
+        }
+    }
+    impl<'a, T> From<&'a mut Slice<T>> for &'a mut [T] {
+        fn from(value: &'a mut Slice<T>) -> Self {
+            value.as_mut_slice()
+        }
+    }
+}

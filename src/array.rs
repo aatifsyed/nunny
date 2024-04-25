@@ -14,10 +14,17 @@ pub struct Array<T, const N: usize> {
 /// Creation
 impl<const N: usize, T> Array<T, N> {
     crate::map_non_empty! {
-        new([T; N]) -> Self: Self::new_unchecked;
         new_ref(&[T; N]) -> &Self: Self::new_ref_unchecked;
         new_mut(&mut [T; N]) -> &mut Self: Self::new_mut_unchecked;
     }
+
+    pub const fn new(src: [T; N]) -> Result<Self, [T; N]> {
+        match N != 0 {
+            true => Ok(unsafe { Self::new_unchecked(src) }),
+            false => Err(src),
+        }
+    }
+
     crate::transmuting! {
         const new_ref_unchecked(&[T; N]) -> &Self;
         new_mut_unchecked(&mut [T; N]) -> &mut Self;
@@ -245,6 +252,50 @@ mod cmp_std {
     {
         fn partial_cmp(&self, other: &Array<T, N>) -> Option<Ordering> {
             <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+}
+
+mod convert_std {
+    use crate::Error;
+
+    use super::*;
+
+    impl<T, const N: usize> TryFrom<[T; N]> for Array<T, N> {
+        type Error = [T; N];
+
+        fn try_from(value: [T; N]) -> Result<Self, Self::Error> {
+            Self::new(value)
+        }
+    }
+    impl<'a, T, const N: usize> TryFrom<&'a [T; N]> for &'a Array<T, N> {
+        type Error = Error;
+
+        fn try_from(value: &'a [T; N]) -> Result<Self, Self::Error> {
+            Array::new_ref(value).ok_or(Error(()))
+        }
+    }
+    impl<'a, T, const N: usize> TryFrom<&'a mut [T; N]> for &'a mut Array<T, N> {
+        type Error = Error;
+
+        fn try_from(value: &'a mut [T; N]) -> Result<Self, Self::Error> {
+            Array::new_mut(value).ok_or(Error(()))
+        }
+    }
+
+    impl<T, const N: usize> From<Array<T, N>> for [T; N] {
+        fn from(value: Array<T, N>) -> Self {
+            value.into_array()
+        }
+    }
+    impl<'a, T, const N: usize> From<&'a Array<T, N>> for &'a [T; N] {
+        fn from(value: &'a Array<T, N>) -> Self {
+            value.as_array()
+        }
+    }
+    impl<'a, T, const N: usize> From<&'a mut Array<T, N>> for &'a mut [T; N] {
+        fn from(value: &'a mut Array<T, N>) -> Self {
+            value.as_mut_array()
         }
     }
 }
