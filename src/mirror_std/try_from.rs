@@ -56,6 +56,7 @@ impl<'a, T, const N: usize> TryFrom<&'a mut Slice<T>> for &'a mut Array<T, N> {
 // }
 
 #[cfg(feature = "alloc")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 impl<T, const N: usize> TryFrom<Vec<T>> for Array<T, N> {
     type Error = Vec<T>;
 
@@ -101,6 +102,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<T, N>> {
     type Error = Box<Slice<T>>;
 
@@ -123,6 +125,7 @@ impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<T, N>> {
 // }
 
 #[cfg(feature = "alloc")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 impl<T, const N: usize> TryFrom<Vec<T>> for Box<Array<T, N>> {
     type Error = Vec<T>;
 
@@ -142,6 +145,7 @@ impl<T, const N: usize> TryFrom<Vec<T>> for Box<Array<T, N>> {
 ///
 /// `boxed_slice.len()` must be exactly `N`.
 #[cfg(feature = "alloc")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 unsafe fn boxed_slice_as_array_unchecked<T, const N: usize>(
     boxed_slice: Box<Slice<T>>,
 ) -> Box<Array<T, N>> {

@@ -38,3 +38,7 @@ serde1 = { version = "1.0.198", package = "serde", optional = true, default-feat
 
 [workspace]
 members = ["gen"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "do_doc_cfg"]

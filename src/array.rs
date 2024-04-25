@@ -182,6 +182,7 @@ mod partial_eq_std {
         }
     }
     #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
     impl<T, U, const N: usize> PartialEq<alloc::vec::Vec<U>> for Array<T, N>
     where
         T: PartialEq<U>,
@@ -211,6 +212,7 @@ mod partial_eq_std {
         }
     }
     #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
     impl<T, U, const N: usize> PartialEq<Array<T, N>> for alloc::vec::Vec<U>
     where
         U: PartialEq<T>,
@@ -242,6 +244,7 @@ mod cmp_std {
         }
     }
     #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
     impl<T, const N: usize> PartialOrd<alloc::vec::Vec<T>> for Array<T, N>
     where
         T: PartialOrd,
@@ -271,6 +274,7 @@ mod cmp_std {
         }
     }
     #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
     impl<T, const N: usize> PartialOrd<Array<T, N>> for alloc::vec::Vec<T>
     where
         T: PartialOrd,

@@ -159,6 +159,7 @@ crate::slice_iter! {
 }
 
 #[cfg(feature = "alloc")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 impl<T> IntoIterator for alloc::boxed::Box<Slice<T>> {
     type Item = T;
 
@@ -170,6 +171,7 @@ impl<T> IntoIterator for alloc::boxed::Box<Slice<T>> {
 }
 
 #[cfg(feature = "alloc")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 impl<T> alloc::borrow::ToOwned for Slice<T>
 where
     T: Clone,
@@ -201,6 +203,7 @@ mod partial_eq_std {
         }
     }
     #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
     impl<T, U> PartialEq<alloc::vec::Vec<U>> for Slice<T>
     where
         T: PartialEq<U>,
@@ -230,6 +233,7 @@ mod partial_eq_std {
         }
     }
     #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
     impl<T, U> PartialEq<Slice<T>> for alloc::vec::Vec<U>
     where
         U: PartialEq<T>,
@@ -262,6 +266,7 @@ mod cmp_std {
         }
     }
     #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
     impl<T> PartialOrd<alloc::vec::Vec<T>> for Slice<T>
     where
         T: PartialOrd,
@@ -291,6 +296,7 @@ mod cmp_std {
         }
     }
     #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
     impl<T> PartialOrd<Slice<T>> for alloc::vec::Vec<T>
     where
         T: PartialOrd,
@@ -302,6 +308,7 @@ mod cmp_std {
 }
 
 #[cfg(feature = "alloc")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 impl<T> Clone for alloc::boxed::Box<Slice<T>>
 where
     T: Clone,
@@ -338,6 +345,7 @@ mod convert_std {
     }
 
     #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
     impl<T> TryFrom<Box<[T]>> for Box<Slice<T>> {
         type Error = Error;
 
@@ -360,6 +368,7 @@ mod convert_std {
         }
     }
     #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
     impl<T> From<Box<Slice<T>>> for Box<[T]> {
         fn from(value: Box<Slice<T>>) -> Self {
             crate::Vec::from(value).into_vec().into_boxed_slice()

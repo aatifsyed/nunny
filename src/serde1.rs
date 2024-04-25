@@ -29,6 +29,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 impl<'de, T> Deserialize<'de> for Box<Slice<T>>
 where
     T: Deserialize<'de>,
@@ -42,6 +43,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 impl<'de, T> Deserialize<'de> for Vec<T>
 where
     T: Deserialize<'de>,
@@ -55,6 +57,7 @@ where
     }
 }
 #[cfg(feature = "alloc")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 impl<T> Serialize for Vec<T>
 where
     T: Serialize,
