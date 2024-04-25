@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use owo_colors::OwoColorize as _;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -21,6 +21,8 @@ struct Args {
     selector: String,
     #[arg(long, default_value = "from")]
     method: String,
+    #[arg(long, default_value = "test")]
+    out: Out,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -28,6 +30,7 @@ fn main() -> anyhow::Result<()> {
         url,
         selector,
         method,
+        out,
     } = Args::parse();
     let method = Ident::parse.parse_str(&method)?;
     let html = ureq::get(&url).call()?.into_string()?;
@@ -38,15 +41,13 @@ fn main() -> anyhow::Result<()> {
         let text = selected.text().collect::<Vec<_>>().join(" ");
         eprintln!("{}", text.dimmed());
 
-        match syn::parse_str::<Impl>(&text).map(|it| select(it, &method)) {
+        match syn::parse_str::<Impl>(&text).map(|it| select(it, &method, out)) {
             Ok(Some(it)) => {
                 let rendered = prettyplease::unparse(&syn::File {
                     shebang: None,
                     attrs: vec![],
                     items: vec![syn::parse_quote! {
-                        const _: () = {
-                            #it
-                        };
+                        #it
                     }],
                 });
                 println!("{}", rendered.green())
@@ -59,6 +60,12 @@ fn main() -> anyhow::Result<()> {
         }
     }
     Ok(())
+}
+
+#[derive(ValueEnum, Clone, Copy)]
+enum Out {
+    Test,
+    Impl,
 }
 
 /// Change the types:
@@ -74,7 +81,7 @@ fn main() -> anyhow::Result<()> {
 /// - impl _<$src> for $dst
 ///
 ///
-fn select(mut impl_: Impl, method: &Ident) -> Option<TokenStream> {
+fn select(mut impl_: Impl, method: &Ident, out: Out) -> Option<TokenStream> {
     struct Visitor {
         include: bool,
     }
@@ -171,18 +178,32 @@ fn select(mut impl_: Impl, method: &Ident) -> Option<TokenStream> {
         .map(|it| &it.ident)
         .collect::<Punctuated<_, Token![,]>>();
 
-    let test = quote! {
-        fn _test
-            #lt_token
-            #params
-            #gt_token
-        ()
-        #where_clause
-        {
-            <#dst as #trait_<#src>>::#method;
-        }
+    let ret = match out {
+        Out::Test => quote! {
+            const _: () = {
+                fn _test
+                    #lt_token
+                    #params
+                    #gt_token
+                ()
+                #where_clause
+                {
+                    <#dst as #trait_<#src>>::#method;
+                }
+            }
+        },
+        Out::Impl => quote! {
+            impl #lt_token #params #gt_token
+                #trait_<#src>
+            for #dst
+            #where_clause
+            {
+                fn #method(&self, other: &#src) {}
+            }
+        },
     };
-    Some(test)
+
+    Some(ret)
 }
 
 #[derive(Debug)]
