@@ -44,7 +44,7 @@ where
     T: JsonSchema,
 {
     fn schema_name() -> String {
-        Vec::<T>::schema_name()
+        format!("Array_of_{}_of_{}", N, T::schema_name())
     }
 
     fn json_schema(gen: &mut schemars08::gen::SchemaGenerator) -> Schema {
