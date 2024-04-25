@@ -105,12 +105,46 @@ impl<const N: usize, T> DerefMut for Array<N, T> {
     }
 }
 
-impl<const N: usize, T> IntoIterator for Array<N, T> {
-    type Item = T;
+crate::as_ref_as_mut! {
+    <T, const N: usize> for Array<N, T> as [T];
+    <T, const N: usize> for Array<N, T> as Slice<T>;
+    <T, const N: usize> for Array<N, T> as Self;
+}
 
-    type IntoIter = core::array::IntoIter<T, N>;
+crate::borrow_borrow_mut! {
+    <T, const N: usize> for Array<N, T> as [T];
+    <T, const N: usize> for Array<N, T> as Slice<T>;
+}
 
-    fn into_iter(self) -> Self::IntoIter {
-        self.into_array().into_iter()
+mod iter {
+    use super::*;
+    use core::slice::{Iter, IterMut};
+
+    impl<'a, T, const N: usize> IntoIterator for &'a Array<N, T> {
+        type Item = &'a T;
+
+        type IntoIter = Iter<'a, T>;
+
+        fn into_iter(self) -> Self::IntoIter {
+            self.iter()
+        }
+    }
+    impl<'a, T, const N: usize> IntoIterator for &'a mut Array<N, T> {
+        type Item = &'a mut T;
+
+        type IntoIter = IterMut<'a, T>;
+
+        fn into_iter(self) -> Self::IntoIter {
+            self.iter_mut()
+        }
+    }
+    impl<const N: usize, T> IntoIterator for Array<N, T> {
+        type Item = T;
+
+        type IntoIter = core::array::IntoIter<T, N>;
+
+        fn into_iter(self) -> Self::IntoIter {
+            self.into_array().into_iter()
+        }
     }
 }

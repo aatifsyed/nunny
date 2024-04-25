@@ -1,7 +1,5 @@
 use core::{
-    borrow::{Borrow, BorrowMut},
     cmp::Ordering,
-    convert::{AsMut, AsRef},
     iter::{Extend, IntoIterator},
     mem::MaybeUninit,
     num::NonZeroUsize,
@@ -198,32 +196,19 @@ impl<T> DerefMut for Vec<T> {
     }
 }
 
+crate::as_ref_as_mut! {
+    <T> for Vec<T> as [T];
+    <T> for Vec<T> as Slice<T>;
+    <T> for Vec<T> as Self;
+}
+
+crate::borrow_borrow_mut! {
+    <T> for Vec<T> as [T];
+    <T> for Vec<T> as Slice<T>;
+}
+
 mod against_primitives {
     use super::*;
-
-    // AsRef/AsMut [T]
-    impl<T> AsRef<[T]> for Vec<T> {
-        fn as_ref(&self) -> &[T] {
-            self
-        }
-    }
-    impl<T> AsMut<[T]> for Vec<T> {
-        fn as_mut(&mut self) -> &mut [T] {
-            self
-        }
-    }
-
-    // Borrow/BorrowMut [T]
-    impl<T> Borrow<[T]> for Vec<T> {
-        fn borrow(&self) -> &[T] {
-            self
-        }
-    }
-    impl<T> BorrowMut<[T]> for Vec<T> {
-        fn borrow_mut(&mut self) -> &mut [T] {
-            self
-        }
-    }
 
     // PartialEq<U>/PartialOrd [T]
     impl<T, U> PartialEq<[U]> for Vec<T>
@@ -258,45 +243,6 @@ mod against_primitives {
     {
         fn partial_cmp(&self, other: &[T; N]) -> Option<Ordering> {
             self.as_slice().as_slice().partial_cmp(other)
-        }
-    }
-}
-
-mod against_nonempty {
-    use super::*;
-
-    // AsRef/AsMut Slice<T>
-    impl<T> AsRef<Slice<T>> for Vec<T> {
-        fn as_ref(&self) -> &Slice<T> {
-            self
-        }
-    }
-    impl<T> AsMut<Slice<T>> for Vec<T> {
-        fn as_mut(&mut self) -> &mut Slice<T> {
-            self
-        }
-    }
-
-    // Borrow/BorrowMut Slice<T>
-    impl<T> Borrow<Slice<T>> for Vec<T> {
-        fn borrow(&self) -> &Slice<T> {
-            self
-        }
-    }
-    impl<T> BorrowMut<Slice<T>> for Vec<T> {
-        fn borrow_mut(&mut self) -> &mut Slice<T> {
-            self
-        }
-    }
-
-    // PartialEq<U>/PartialOrd Slice<T>
-
-    impl<T> PartialOrd<Slice<T>> for Vec<T>
-    where
-        T: PartialOrd,
-    {
-        fn partial_cmp(&self, other: &Slice<T>) -> Option<Ordering> {
-            self.as_slice().partial_cmp(other)
         }
     }
 }
@@ -339,7 +285,7 @@ mod iter {
         type IntoIter = core::slice::Iter<'a, T>;
 
         fn into_iter(self) -> Self::IntoIter {
-            self.as_slice().into_iter()
+            self.iter()
         }
     }
     impl<'a, T> IntoIterator for &'a mut Vec<T> {
@@ -348,7 +294,7 @@ mod iter {
         type IntoIter = core::slice::IterMut<'a, T>;
 
         fn into_iter(self) -> Self::IntoIter {
-            self.as_mut_slice().into_iter()
+            self.iter_mut()
         }
     }
     impl<'a, T> Extend<&'a T> for Vec<T>

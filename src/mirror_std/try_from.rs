@@ -16,12 +16,10 @@
 
 #[cfg(feature = "alloc")]
 use crate::Vec;
-use crate::{Array, Slice};
+use crate::{Array, Slice, TryFromSliceError};
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 // use alloc::{rc::Rc, sync::Arc};
-
-pub struct TryFromSliceError(());
 
 impl<'a, T, const N: usize> TryFrom<&'a Slice<T>> for &'a Array<N, T> {
     type Error = TryFromSliceError;

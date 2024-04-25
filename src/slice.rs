@@ -1,12 +1,9 @@
-use crate::Error;
 use core::{
-    borrow::{Borrow, BorrowMut},
-    cmp::Ordering,
     hint::unreachable_unchecked,
     iter::IntoIterator,
     num::NonZeroUsize,
     ops::{Deref, DerefMut},
-    slice::{self, Iter, IterMut},
+    slice,
 };
 
 #[derive(Debug, Eq, PartialOrd, Ord, Hash)]
@@ -124,119 +121,18 @@ impl<T> DerefMut for Slice<T> {
     }
 }
 
-mod against_primitives {
-    use super::*;
-
-    // AsRef/AsMut [T]
-    impl<T> AsRef<[T]> for Slice<T> {
-        fn as_ref(&self) -> &[T] {
-            self.as_slice()
-        }
-    }
-    impl<T> AsMut<[T]> for Slice<T> {
-        fn as_mut(&mut self) -> &mut [T] {
-            self.as_mut_slice()
-        }
-    }
-
-    // Borrow/BorrowMut [T]
-    impl<T> Borrow<[T]> for Slice<T> {
-        fn borrow(&self) -> &[T] {
-            self.as_slice()
-        }
-    }
-    impl<T> BorrowMut<[T]> for Slice<T> {
-        fn borrow_mut(&mut self) -> &mut [T] {
-            self.as_mut_slice()
-        }
-    }
-
-    // PartialEq<U>/PartialOrd [T]
-    impl<T, U> PartialEq<[U]> for Slice<T>
-    where
-        T: PartialEq<U>,
-    {
-        fn eq(&self, other: &[U]) -> bool {
-            self.as_slice().eq(other)
-        }
-    }
-    impl<T> PartialOrd<[T]> for Slice<T>
-    where
-        T: PartialOrd,
-    {
-        fn partial_cmp(&self, other: &[T]) -> Option<Ordering> {
-            self.as_slice().partial_cmp(other)
-        }
-    }
-
-    // PartialEq<U>/PartialOrd [T; N]
-    impl<const N: usize, T, U> PartialEq<[U; N]> for Slice<T>
-    where
-        T: PartialEq<U>,
-    {
-        fn eq(&self, other: &[U; N]) -> bool {
-            self.as_slice().eq(other)
-        }
-    }
-    impl<const N: usize, T> PartialOrd<[T; N]> for Slice<T>
-    where
-        T: PartialOrd,
-    {
-        fn partial_cmp(&self, other: &[T; N]) -> Option<Ordering> {
-            self.as_slice().partial_cmp(other)
-        }
-    }
-
-    // TryFrom [T]
-    impl<'a, T> TryFrom<&'a [T]> for &'a Slice<T> {
-        type Error = Error;
-
-        fn try_from(value: &'a [T]) -> Result<Self, Self::Error> {
-            Slice::new(value).ok_or(Error(()))
-        }
-    }
-    impl<'a, T> TryFrom<&'a mut [T]> for &'a mut Slice<T> {
-        type Error = Error;
-
-        fn try_from(value: &'a mut [T]) -> Result<Self, Self::Error> {
-            Slice::new_mut(value).ok_or(Error(()))
-        }
-    }
-
-    // TryFrom [T; N]
-    impl<'a, const N: usize, T> TryFrom<&'a [T; N]> for &'a Slice<T> {
-        type Error = Error;
-
-        fn try_from(value: &'a [T; N]) -> Result<Self, Self::Error> {
-            Slice::new(value).ok_or(Error(()))
-        }
-    }
-    impl<'a, const N: usize, T> TryFrom<&'a mut [T; N]> for &'a mut Slice<T> {
-        type Error = Error;
-
-        fn try_from(value: &'a mut [T; N]) -> Result<Self, Self::Error> {
-            Slice::new_mut(value).ok_or(Error(()))
-        }
-    }
+crate::as_ref_as_mut! {
+    <T> for Slice<T> as [T];
+    <T> for Slice<T> as Self;
 }
 
-mod against_self {
-    use super::*;
-    // AsRef/AsMut Slice<T>
-    impl<T> AsRef<Self> for Slice<T> {
-        fn as_ref(&self) -> &Self {
-            self
-        }
-    }
-    impl<T> AsMut<Self> for Slice<T> {
-        fn as_mut(&mut self) -> &mut Self {
-            self
-        }
-    }
+crate::borrow_borrow_mut! {
+    <T> for Slice<T> as [T];
 }
 
 mod iter {
     use super::*;
+    use core::slice::{Iter, IterMut};
 
     impl<'a, T> IntoIterator for &'a Slice<T> {
         type Item = &'a T;
@@ -244,7 +140,7 @@ mod iter {
         type IntoIter = Iter<'a, T>;
 
         fn into_iter(self) -> Self::IntoIter {
-            self.as_slice().iter()
+            self.iter()
         }
     }
     impl<'a, T> IntoIterator for &'a mut Slice<T> {
@@ -253,7 +149,7 @@ mod iter {
         type IntoIter = IterMut<'a, T>;
 
         fn into_iter(self) -> Self::IntoIter {
-            self.as_mut_slice().iter_mut()
+            self.iter_mut()
         }
     }
 

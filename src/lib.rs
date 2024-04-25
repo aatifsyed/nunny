@@ -21,7 +21,7 @@ pub use slice::Slice;
 #[cfg(feature = "alloc")]
 pub use vec::Vec;
 
-use core::{fmt, hint::unreachable_unchecked, num::NonZeroUsize};
+use core::{convert::Infallible, fmt, hint::unreachable_unchecked, num::NonZeroUsize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Error<T = ()>(T);
@@ -95,6 +95,38 @@ macro_rules! map_non_empty {
 }
 pub(crate) use map_non_empty;
 
+macro_rules! as_ref_as_mut {
+    ($($(<$ty_param:ident $(, const $const_param:ident: usize)?>)? for $self:ty as $ty:ty);* $(;)?) => {
+        $(
+            impl$(<$ty_param $(, const $const_param: usize)?>)? ::core::convert::AsRef<$ty> for $self {
+                fn as_ref(&self) -> &$ty { self }
+            }
+
+            impl$(<$ty_param $(, const $const_param: usize)?>)? ::core::convert::AsMut<$ty> for $self {
+                fn as_mut(&mut self) -> &mut $ty { self }
+            }
+
+        )*
+    };
+}
+pub(crate) use as_ref_as_mut;
+
+macro_rules! borrow_borrow_mut {
+    ($($(<$ty_param:ident $(, const $const_param:ident: usize)?>)? for $self:ty as $ty:ty);* $(;)?) => {
+        $(
+            impl$(<$ty_param $(, const $const_param: usize)?>)? ::core::borrow::Borrow<$ty> for $self {
+                fn borrow(&self) -> &$ty { self }
+            }
+
+            impl$(<$ty_param $(, const $const_param: usize)?>)? ::core::borrow::BorrowMut<$ty> for $self {
+                fn borrow_mut(&mut self) -> &mut $ty { self }
+            }
+
+        )*
+    };
+}
+pub(crate) use borrow_borrow_mut;
+
 const unsafe fn non_zero_usize(n: usize) -> NonZeroUsize {
     match NonZeroUsize::new(n) {
         Some(it) => it,
@@ -102,5 +134,20 @@ const unsafe fn non_zero_usize(n: usize) -> NonZeroUsize {
             true => unreachable!(),
             false => unsafe { unreachable_unchecked() },
         },
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct TryFromSliceError(());
+
+impl From<Infallible> for TryFromSliceError {
+    fn from(value: Infallible) -> Self {
+        match value {}
+    }
+}
+
+impl fmt::Display for TryFromSliceError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("could not convert slice to array")
     }
 }
