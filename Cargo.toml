@@ -20,9 +20,14 @@ serde1 = ["dep:serde1"]
 # Changing it to `arbitrary2` is not considered a breaking change
 arbitrary = ["arbitrary1"]
 arbitrary1 = ["dep:arbitrary1", "std"]
+# This feature will always track the latest (API) version of quickcheck.
+# Changing it to `quickcheck2` is not considered a breaking change
+quickcheck = ["quickcheck1"]
+quickcheck1 = ["dep:quickcheck1", "std"]
 
 [dependencies]
 arbitrary1 = { version = "1.3.2", package = "arbitrary", optional = true }
+quickcheck1 = { version = "1.0.3", package = "quickcheck", optional = true, default-features = false }
 serde1 = { version = "1.0.198", package = "serde", optional = true, default-features = false }
 
 [workspace]

@@ -267,6 +267,19 @@ mod cmp_std {
     }
 }
 
+#[cfg(feature = "alloc")]
+impl<T> Clone for Box<Slice<T>>
+where
+    T: Clone,
+{
+    fn clone(&self) -> Self {
+        let src = self.to_vec();
+        // Safety:
+        // - Src is non-empty by construction
+        unsafe { crate::Vec::new_unchecked(src) }.into_boxed_slice()
+    }
+}
+
 mod convert_std {
     use crate::Error;
 
@@ -307,6 +320,12 @@ mod convert_std {
     impl<'a, T> From<&'a mut Slice<T>> for &'a mut [T] {
         fn from(value: &'a mut Slice<T>) -> Self {
             value.as_mut_slice()
+        }
+    }
+    #[cfg(feature = "alloc")]
+    impl<T> From<Box<Slice<T>>> for Box<[T]> {
+        fn from(value: Box<Slice<T>>) -> Self {
+            crate::Vec::from(value).into_vec().into_boxed_slice()
         }
     }
 }

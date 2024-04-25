@@ -513,6 +513,7 @@ name = "nunny"
 version = "0.0.0"
 dependencies = [
  "arbitrary",
+ "quickcheck",
  "serde",
 ]
 
@@ -675,6 +676,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d1597b0c024618f09a9c3b8655b7e430397a36d23fdafec26d6965e9eec3eba"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "quickcheck"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "588f6378e4dd99458b60ec275b4477add41ce4fa9f64dcba6f15adccb19b50d6"
+dependencies = [
+ "rand",
 ]
 
 [[package]]
