@@ -97,50 +97,6 @@ impl<T> Array<T, 1> {
     }
 }
 
-/// These methods are provided as a convenience for fixed arrays where length is:
-/// - any number `1..=256`
-/// - powers of two `..=65536`
-impl Array<(), 0> {
-    /// Create an array for a known non-zero array
-    pub fn exact<A: Exact>(item: A) -> A::Out {
-        item.exact()
-    }
-    pub fn exact_ref<A: Exact>(item: &A) -> &A::Out {
-        item.exact_ref()
-    }
-    pub fn exact_mut<A: Exact>(item: &mut A) -> &mut A::Out {
-        item.exact_mut()
-    }
-}
-
-/// See impl block on [`Array::exact`]
-pub trait Exact {
-    type Out;
-    fn exact(self) -> Self::Out;
-    fn exact_ref(&self) -> &Self::Out;
-    fn exact_mut(&mut self) -> &mut Self::Out;
-}
-
-macro_rules! impl_exact {
-    ($n:literal) => {
-        #[allow(clippy::zero_prefixed_literal)]
-        impl<T> Exact for [T; $n] {
-            type Out = Array<T, $n>;
-            fn exact(self) -> Self::Out {
-                unsafe { Array::new_unchecked(self) }
-            }
-            fn exact_ref(&self) -> &Self::Out {
-                unsafe { Array::new_ref_unchecked(self) }
-            }
-            fn exact_mut(&mut self) -> &mut Self::Out {
-                unsafe { Array::new_mut_unchecked(self) }
-            }
-        }
-    };
-}
-
-crate::for_nonzeroes!(impl_exact);
-
 impl<const N: usize, T> Deref for Array<T, N> {
     type Target = Slice<T>;
 
