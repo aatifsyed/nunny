@@ -1,5 +1,4 @@
 use core::{
-    iter::IntoIterator,
     num::NonZeroUsize,
     ops::{Deref, DerefMut},
     slice,
@@ -176,6 +175,38 @@ mod partial_eq_std {
     {
         fn eq(&self, other: &alloc::vec::Vec<U>) -> bool {
             <[_] as PartialEq<[_]>>::eq(self, other)
+        }
+    }
+}
+
+mod cmp_std {
+    use core::cmp::Ordering;
+
+    use super::*;
+
+    impl<T> PartialOrd<[T]> for Slice<T>
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &[T]) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+    impl<T, const N: usize> PartialOrd<[T; N]> for Slice<T>
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &[T; N]) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+    #[cfg(feature = "alloc")]
+    impl<T> PartialOrd<alloc::vec::Vec<T>> for Slice<T>
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &alloc::vec::Vec<T>) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
         }
     }
 }

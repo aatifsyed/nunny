@@ -159,3 +159,34 @@ mod partial_eq_std {
         }
     }
 }
+mod cmp_std {
+    use core::cmp::Ordering;
+
+    use super::*;
+
+    impl<T, const N: usize> PartialOrd<[T]> for Array<N, T>
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &[T]) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+    impl<T, const N: usize> PartialOrd<[T; N]> for Array<N, T>
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &[T; N]) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+    #[cfg(feature = "alloc")]
+    impl<T, const N: usize> PartialOrd<alloc::vec::Vec<T>> for Array<N, T>
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &alloc::vec::Vec<T>) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+}

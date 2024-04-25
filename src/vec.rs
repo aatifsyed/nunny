@@ -1,6 +1,4 @@
 use core::{
-    cmp::Ordering,
-    iter::{Extend, IntoIterator},
     mem::MaybeUninit,
     num::NonZeroUsize,
     ops::{Deref, DerefMut},
@@ -207,41 +205,6 @@ crate::borrow_borrow_mut! {
     <T> for Vec<T> as Slice<T>;
 }
 
-mod against_primitives {
-    use super::*;
-
-    impl<T> PartialOrd<[T]> for Vec<T>
-    where
-        T: PartialOrd,
-    {
-        fn partial_cmp(&self, other: &[T]) -> Option<Ordering> {
-            self.as_slice().as_slice().partial_cmp(other)
-        }
-    }
-
-    impl<const N: usize, T> PartialOrd<[T; N]> for Vec<T>
-    where
-        T: PartialOrd,
-    {
-        fn partial_cmp(&self, other: &[T; N]) -> Option<Ordering> {
-            self.as_slice().as_slice().partial_cmp(other)
-        }
-    }
-}
-
-mod against_std {
-    use super::*;
-
-    impl<T> PartialOrd<alloc::vec::Vec<T>> for Vec<T>
-    where
-        T: PartialOrd,
-    {
-        fn partial_cmp(&self, other: &alloc::vec::Vec<T>) -> Option<Ordering> {
-            self.as_vec().partial_cmp(other)
-        }
-    }
-}
-
 crate::slice_iter! {
     <T> for Vec<T>
 }
@@ -301,6 +264,38 @@ mod partial_eq_std {
     {
         fn eq(&self, other: &alloc::vec::Vec<U>) -> bool {
             <[_] as PartialEq<[_]>>::eq(self, other)
+        }
+    }
+}
+
+mod cmp_std {
+    use core::cmp::Ordering;
+
+    use super::*;
+
+    impl<T> PartialOrd<[T]> for Vec<T>
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &[T]) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+    impl<T, const N: usize> PartialOrd<[T; N]> for Vec<T>
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &[T; N]) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+
+    impl<T> PartialOrd<alloc::vec::Vec<T>> for Vec<T>
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &alloc::vec::Vec<T>) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
         }
     }
 }
