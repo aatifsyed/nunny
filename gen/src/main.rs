@@ -70,7 +70,7 @@ enum Out {
 
 /// Change the types:
 /// - [T] -> Slice<T>
-/// - [T; N] -> Array<N, T>
+/// - [T; N] -> Array<T, N>
 ///
 /// Select `impls` with any of the following types:
 /// - Slice

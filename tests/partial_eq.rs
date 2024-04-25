@@ -18,7 +18,7 @@ const _: () = {
     where
         A: PartialEq<B>,
     {
-        <Array<N, A> as PartialEq<&Slice<B>>>::eq;
+        <Array<A, N> as PartialEq<&Slice<B>>>::eq;
     }
 };
 
@@ -27,7 +27,7 @@ const _: () = {
     where
         A: PartialEq<B>,
     {
-        <Array<N, A> as PartialEq<&mut Slice<B>>>::eq;
+        <Array<A, N> as PartialEq<&mut Slice<B>>>::eq;
     }
 };
 
@@ -36,7 +36,7 @@ const _: () = {
     where
         B: PartialEq<A>,
     {
-        <&Slice<B> as PartialEq<Array<N, A>>>::eq;
+        <&Slice<B> as PartialEq<Array<A, N>>>::eq;
     }
 };
 
@@ -45,7 +45,7 @@ const _: () = {
     where
         B: PartialEq<A>,
     {
-        <&mut Slice<B> as PartialEq<Array<N, A>>>::eq;
+        <&mut Slice<B> as PartialEq<Array<A, N>>>::eq;
     }
 };
 
@@ -54,7 +54,7 @@ const _: () = {
     where
         B: PartialEq<A>,
     {
-        <Slice<B> as PartialEq<Array<N, A>>>::eq;
+        <Slice<B> as PartialEq<Array<A, N>>>::eq;
     }
 };
 
@@ -63,7 +63,7 @@ const _: () = {
     where
         A: PartialEq<B>,
     {
-        <Array<N, A> as PartialEq<Array<N, B>>>::eq;
+        <Array<A, N> as PartialEq<Array<B, N>>>::eq;
     }
 };
 
@@ -72,7 +72,7 @@ const _: () = {
     where
         A: PartialEq<B>,
     {
-        <Array<N, A> as PartialEq<Slice<B>>>::eq;
+        <Array<A, N> as PartialEq<Slice<B>>>::eq;
     }
 };
 
@@ -180,7 +180,7 @@ const _: () = {
     where
         T: PartialEq<U>,
     {
-        <VecDeque<T> as PartialEq<&Array<N, U>>>::eq;
+        <VecDeque<T> as PartialEq<&Array<U, N>>>::eq;
     }
 };
 
@@ -189,7 +189,7 @@ const _: () = {
     where
         T: PartialEq<U>,
     {
-        <Vec<T> as PartialEq<&Array<N, U>>>::eq;
+        <Vec<T> as PartialEq<&Array<U, N>>>::eq;
     }
 };
 
@@ -198,7 +198,7 @@ const _: () = {
     where
         T: PartialEq<U>,
     {
-        <VecDeque<T> as PartialEq<&mut Array<N, U>>>::eq;
+        <VecDeque<T> as PartialEq<&mut Array<U, N>>>::eq;
     }
 };
 
@@ -207,7 +207,7 @@ const _: () = {
     where
         T: PartialEq<U>,
     {
-        <VecDeque<T> as PartialEq<Array<N, U>>>::eq;
+        <VecDeque<T> as PartialEq<Array<U, N>>>::eq;
     }
 };
 
@@ -216,6 +216,6 @@ const _: () = {
     where
         T: PartialEq<U>,
     {
-        <Vec<T> as PartialEq<Array<N, U>>>::eq;
+        <Vec<T> as PartialEq<Array<U, N>>>::eq;
     }
 };

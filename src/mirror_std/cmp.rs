@@ -24,7 +24,7 @@ where
     }
 }
 
-impl<const N: usize, T> PartialOrd for Array<N, T>
+impl<const N: usize, T> PartialOrd for Array<T, N>
 where
     T: PartialOrd,
 {
@@ -32,7 +32,7 @@ where
         <[_] as PartialOrd>::partial_cmp(self, other)
     }
 }
-impl<const N: usize, T> Ord for Array<N, T>
+impl<const N: usize, T> Ord for Array<T, N>
 where
     T: Ord,
 {

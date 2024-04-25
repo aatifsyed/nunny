@@ -7,12 +7,12 @@ use crate::Slice;
 
 #[derive(Debug, Clone, Copy, Eq, Hash)]
 #[repr(transparent)]
-pub struct Array<const N: usize, T> {
+pub struct Array<T, const N: usize> {
     inner: [T; N],
 }
 
 /// Creation
-impl<const N: usize, T> Array<N, T> {
+impl<const N: usize, T> Array<T, N> {
     crate::map_non_empty! {
         new([T; N]) -> Self: Self::new_unchecked;
         new_ref(&[T; N]) -> &Self: Self::new_ref_unchecked;
@@ -31,7 +31,7 @@ impl<const N: usize, T> Array<N, T> {
     }
 }
 
-impl<T> Array<1, T> {
+impl<T> Array<T, 1> {
     pub fn of(item: T) -> Self {
         let src = [item];
         unsafe { Self::new_unchecked(src) }
@@ -46,18 +46,18 @@ impl<T> Array<1, T> {
     }
 }
 
-impl<const N: usize, T> Array<N, T> {
-    pub fn each_ref(&self) -> Array<N, &T> {
+impl<const N: usize, T> Array<T, N> {
+    pub fn each_ref(&self) -> Array<&T, N> {
         Array {
             inner: self.as_array().each_ref(),
         }
     }
-    pub fn each_mut(&mut self) -> Array<N, &mut T> {
+    pub fn each_mut(&mut self) -> Array<&mut T, N> {
         Array {
             inner: self.as_mut_array().each_mut(),
         }
     }
-    pub fn map<F, U>(self, f: F) -> Array<N, U>
+    pub fn map<F, U>(self, f: F) -> Array<U, N>
     where
         F: FnMut(T) -> U,
     {
@@ -67,7 +67,7 @@ impl<const N: usize, T> Array<N, T> {
     }
 }
 
-impl<const N: usize, T> Array<N, T> {
+impl<const N: usize, T> Array<T, N> {
     pub const fn as_slice(&self) -> &Slice<T> {
         let src = self.inner.as_slice();
         // Safety
@@ -92,35 +92,35 @@ impl<const N: usize, T> Array<N, T> {
     }
 }
 
-impl<const N: usize, T> Deref for Array<N, T> {
+impl<const N: usize, T> Deref for Array<T, N> {
     type Target = Slice<T>;
 
     fn deref(&self) -> &Self::Target {
         self.as_slice()
     }
 }
-impl<const N: usize, T> DerefMut for Array<N, T> {
+impl<const N: usize, T> DerefMut for Array<T, N> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.as_mut_slice()
     }
 }
 
 crate::as_ref_as_mut! {
-    <T, const N: usize> for Array<N, T> as [T];
-    <T, const N: usize> for Array<N, T> as Slice<T>;
-    <T, const N: usize> for Array<N, T> as Self;
+    <T, const N: usize> for Array<T, N> as [T];
+    <T, const N: usize> for Array<T, N> as Slice<T>;
+    <T, const N: usize> for Array<T, N> as Self;
 }
 
 crate::borrow_borrow_mut! {
-    <T, const N: usize> for Array<N, T> as [T];
-    <T, const N: usize> for Array<N, T> as Slice<T>;
+    <T, const N: usize> for Array<T, N> as [T];
+    <T, const N: usize> for Array<T, N> as Slice<T>;
 }
 
 crate::slice_iter! {
-    <T, const N: usize> for Array<N, T>
+    <T, const N: usize> for Array<T, N>
 }
 
-impl<const N: usize, T> IntoIterator for Array<N, T> {
+impl<const N: usize, T> IntoIterator for Array<T, N> {
     type Item = T;
 
     type IntoIter = core::array::IntoIter<T, N>;
@@ -133,7 +133,7 @@ impl<const N: usize, T> IntoIterator for Array<N, T> {
 mod partial_eq_std {
     use super::*;
 
-    impl<T, U, const N: usize> PartialEq<[U]> for Array<N, T>
+    impl<T, U, const N: usize> PartialEq<[U]> for Array<T, N>
     where
         T: PartialEq<U>,
     {
@@ -141,7 +141,7 @@ mod partial_eq_std {
             <[_] as PartialEq<[_]>>::eq(self, other)
         }
     }
-    impl<T, U, const N: usize> PartialEq<[U; N]> for Array<N, T>
+    impl<T, U, const N: usize> PartialEq<[U; N]> for Array<T, N>
     where
         T: PartialEq<U>,
     {
@@ -150,7 +150,7 @@ mod partial_eq_std {
         }
     }
     #[cfg(feature = "alloc")]
-    impl<T, U, const N: usize> PartialEq<alloc::vec::Vec<U>> for Array<N, T>
+    impl<T, U, const N: usize> PartialEq<alloc::vec::Vec<U>> for Array<T, N>
     where
         T: PartialEq<U>,
     {
@@ -162,28 +162,28 @@ mod partial_eq_std {
     // converse
     //---------
 
-    impl<T, U, const N: usize> PartialEq<Array<N, T>> for [U]
+    impl<T, U, const N: usize> PartialEq<Array<T, N>> for [U]
     where
         U: PartialEq<T>,
     {
-        fn eq(&self, other: &Array<N, T>) -> bool {
+        fn eq(&self, other: &Array<T, N>) -> bool {
             <[_] as PartialEq<[_]>>::eq(self, other)
         }
     }
-    impl<T, U, const N: usize> PartialEq<Array<N, T>> for [U; N]
+    impl<T, U, const N: usize> PartialEq<Array<T, N>> for [U; N]
     where
         U: PartialEq<T>,
     {
-        fn eq(&self, other: &Array<N, T>) -> bool {
+        fn eq(&self, other: &Array<T, N>) -> bool {
             <[_] as PartialEq<[_]>>::eq(self, other)
         }
     }
     #[cfg(feature = "alloc")]
-    impl<T, U, const N: usize> PartialEq<Array<N, T>> for alloc::vec::Vec<U>
+    impl<T, U, const N: usize> PartialEq<Array<T, N>> for alloc::vec::Vec<U>
     where
         U: PartialEq<T>,
     {
-        fn eq(&self, other: &Array<N, T>) -> bool {
+        fn eq(&self, other: &Array<T, N>) -> bool {
             <[_] as PartialEq<[_]>>::eq(self, other)
         }
     }
@@ -193,7 +193,7 @@ mod cmp_std {
 
     use super::*;
 
-    impl<T, const N: usize> PartialOrd<[T]> for Array<N, T>
+    impl<T, const N: usize> PartialOrd<[T]> for Array<T, N>
     where
         T: PartialOrd,
     {
@@ -201,7 +201,7 @@ mod cmp_std {
             <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
         }
     }
-    impl<T, const N: usize> PartialOrd<[T; N]> for Array<N, T>
+    impl<T, const N: usize> PartialOrd<[T; N]> for Array<T, N>
     where
         T: PartialOrd,
     {
@@ -210,7 +210,7 @@ mod cmp_std {
         }
     }
     #[cfg(feature = "alloc")]
-    impl<T, const N: usize> PartialOrd<alloc::vec::Vec<T>> for Array<N, T>
+    impl<T, const N: usize> PartialOrd<alloc::vec::Vec<T>> for Array<T, N>
     where
         T: PartialOrd,
     {
@@ -222,28 +222,28 @@ mod cmp_std {
     // converse
     //---------
 
-    impl<T, const N: usize> PartialOrd<Array<N, T>> for [T]
+    impl<T, const N: usize> PartialOrd<Array<T, N>> for [T]
     where
         T: PartialOrd,
     {
-        fn partial_cmp(&self, other: &Array<N, T>) -> Option<Ordering> {
+        fn partial_cmp(&self, other: &Array<T, N>) -> Option<Ordering> {
             <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
         }
     }
-    impl<T, const N: usize> PartialOrd<Array<N, T>> for [T; N]
+    impl<T, const N: usize> PartialOrd<Array<T, N>> for [T; N]
     where
         T: PartialOrd,
     {
-        fn partial_cmp(&self, other: &Array<N, T>) -> Option<Ordering> {
+        fn partial_cmp(&self, other: &Array<T, N>) -> Option<Ordering> {
             <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
         }
     }
     #[cfg(feature = "alloc")]
-    impl<T, const N: usize> PartialOrd<Array<N, T>> for alloc::vec::Vec<T>
+    impl<T, const N: usize> PartialOrd<Array<T, N>> for alloc::vec::Vec<T>
     where
         T: PartialOrd,
     {
-        fn partial_cmp(&self, other: &Array<N, T>) -> Option<Ordering> {
+        fn partial_cmp(&self, other: &Array<T, N>) -> Option<Ordering> {
             <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
         }
     }

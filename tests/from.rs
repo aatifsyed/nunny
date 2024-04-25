@@ -108,7 +108,7 @@ const _: () = {
         T: Clone,
         T: 'a,
     {
-        <Cow<'a, Slice<T>> as From<&'a Array<N, T>>>::from;
+        <Cow<'a, Slice<T>> as From<&'a Array<T, N>>>::from;
     }
 };
 
@@ -135,7 +135,7 @@ const _: () = {
     where
         K: Eq + Hash,
     {
-        <HashMap<K, V, RandomState> as From<Array<N, (K, V)>>>::from;
+        <HashMap<K, V, RandomState> as From<Array<(K, V), N>>>::from;
     }
 };
 
@@ -144,7 +144,7 @@ const _: () = {
     where
         K: Ord,
     {
-        <BTreeMap<K, V> as From<Array<N, (K, V)>>>::from;
+        <BTreeMap<K, V> as From<Array<(K, V), N>>>::from;
     }
 };
 
@@ -375,7 +375,7 @@ const _: () = {
     where
         T: Clone,
     {
-        <Vec<T> as From<&Array<N, T>>>::from;
+        <Vec<T> as From<&Array<T, N>>>::from;
     }
 };
 
@@ -384,13 +384,13 @@ const _: () = {
     where
         T: Clone,
     {
-        <Vec<T> as From<&mut Array<N, T>>>::from;
+        <Vec<T> as From<&mut Array<T, N>>>::from;
     }
 };
 
 const _: () = {
     fn _test<T, const N: usize>() {
-        <Box<Slice<T>> as From<Array<N, T>>>::from;
+        <Box<Slice<T>> as From<Array<T, N>>>::from;
     }
 };
 
@@ -399,7 +399,7 @@ const _: () = {
     where
         T: Eq + Hash,
     {
-        <HashSet<T, RandomState> as From<Array<N, T>>>::from;
+        <HashSet<T, RandomState> as From<Array<T, N>>>::from;
     }
 };
 
@@ -408,7 +408,7 @@ const _: () = {
     where
         T: Ord,
     {
-        <BTreeSet<T> as From<Array<N, T>>>::from;
+        <BTreeSet<T> as From<Array<T, N>>>::from;
     }
 };
 
@@ -417,25 +417,25 @@ const _: () = {
     where
         T: Ord,
     {
-        <BinaryHeap<T> as From<Array<N, T>>>::from;
+        <BinaryHeap<T> as From<Array<T, N>>>::from;
     }
 };
 
 const _: () = {
     fn _test<T, const N: usize>() {
-        <LinkedList<T> as From<Array<N, T>>>::from;
+        <LinkedList<T> as From<Array<T, N>>>::from;
     }
 };
 
 const _: () = {
     fn _test<T, const N: usize>() {
-        <VecDeque<T> as From<Array<N, T>>>::from;
+        <VecDeque<T> as From<Array<T, N>>>::from;
     }
 };
 
 const _: () = {
     fn _test<T, const N: usize>() {
-        <Rc<Slice<T>> as From<Array<N, T>>>::from;
+        <Rc<Slice<T>> as From<Array<T, N>>>::from;
     }
 };
 
@@ -445,19 +445,19 @@ const _: () = {
 //         LaneCount<N>: SupportedLaneCount,
 //         T: SimdElement,
 //     {
-//         <Simd<T, N> as From<Array<N, T>>>::from;
+//         <Simd<T, N> as From<Array<T, N>>>::from;
 //     }
 // };
 
 const _: () = {
     fn _test<T, const N: usize>() {
-        <Arc<Slice<T>> as From<Array<N, T>>>::from;
+        <Arc<Slice<T>> as From<Array<T, N>>>::from;
     }
 };
 
 const _: () = {
     fn _test<T, const N: usize>() {
-        <Vec<T> as From<Array<N, T>>>::from;
+        <Vec<T> as From<Array<T, N>>>::from;
     }
 };
 
@@ -477,7 +477,7 @@ const _: () = {
 //         LaneCount<N>: SupportedLaneCount,
 //         T: SimdElement,
 //     {
-//         <Array<N, T> as From<Simd<T, N>>>::from;
+//         <Array<T, N> as From<Simd<T, N>>>::from;
 //     }
 // };
 

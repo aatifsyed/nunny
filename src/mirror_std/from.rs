@@ -74,31 +74,31 @@ where
 }
 
 #[cfg(feature = "alloc")]
-impl<'a, const N: usize, T> From<&'a Array<N, T>> for Cow<'a, Slice<T>>
+impl<'a, const N: usize, T> From<&'a Array<T, N>> for Cow<'a, Slice<T>>
 where
     T: Clone,
 {
-    fn from(value: &'a Array<N, T>) -> Self {
+    fn from(value: &'a Array<T, N>) -> Self {
         Cow::Borrowed(value.as_slice())
     }
 }
 
 #[cfg(feature = "std")]
-impl<const N: usize, K, V> From<Array<N, (K, V)>> for HashMap<K, V, RandomState>
+impl<const N: usize, K, V> From<Array<(K, V), N>> for HashMap<K, V, RandomState>
 where
     K: Eq + Hash,
 {
-    fn from(value: Array<N, (K, V)>) -> Self {
+    fn from(value: Array<(K, V), N>) -> Self {
         value.into_iter().collect()
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, K, V> From<Array<N, (K, V)>> for BTreeMap<K, V>
+impl<const N: usize, K, V> From<Array<(K, V), N>> for BTreeMap<K, V>
 where
     K: Ord,
 {
-    fn from(value: Array<N, (K, V)>) -> Self {
+    fn from(value: Array<(K, V), N>) -> Self {
         value.into_iter().collect()
     }
 }
@@ -217,28 +217,28 @@ impl<T> From<Vec<T>> for Arc<Slice<T>> {
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, T> From<&Array<N, T>> for Vec<T>
+impl<const N: usize, T> From<&Array<T, N>> for Vec<T>
 where
     T: Clone,
 {
-    fn from(value: &Array<N, T>) -> Self {
+    fn from(value: &Array<T, N>) -> Self {
         value.as_slice().into()
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, T> From<&mut Array<N, T>> for Vec<T>
+impl<const N: usize, T> From<&mut Array<T, N>> for Vec<T>
 where
     T: Clone,
 {
-    fn from(value: &mut Array<N, T>) -> Self {
+    fn from(value: &mut Array<T, N>) -> Self {
         value.as_slice().into()
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, T> From<Array<N, T>> for Box<Slice<T>> {
-    fn from(value: Array<N, T>) -> Self {
+impl<const N: usize, T> From<Array<T, N>> for Box<Slice<T>> {
+    fn from(value: Array<T, N>) -> Self {
         let value = Box::<[T]>::from(value.into_array());
         // Safety:
         // - transmuting is safe because #[repr(transparent)]
@@ -247,52 +247,52 @@ impl<const N: usize, T> From<Array<N, T>> for Box<Slice<T>> {
 }
 
 #[cfg(feature = "std")]
-impl<const N: usize, T> From<Array<N, T>> for HashSet<T, RandomState>
+impl<const N: usize, T> From<Array<T, N>> for HashSet<T, RandomState>
 where
     T: Eq + Hash,
 {
-    fn from(value: Array<N, T>) -> Self {
+    fn from(value: Array<T, N>) -> Self {
         value.into_iter().collect()
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, T> From<Array<N, T>> for BTreeSet<T>
+impl<const N: usize, T> From<Array<T, N>> for BTreeSet<T>
 where
     T: Ord,
 {
-    fn from(value: Array<N, T>) -> Self {
+    fn from(value: Array<T, N>) -> Self {
         value.into_iter().collect()
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, T> From<Array<N, T>> for BinaryHeap<T>
+impl<const N: usize, T> From<Array<T, N>> for BinaryHeap<T>
 where
     T: Ord,
 {
-    fn from(value: Array<N, T>) -> Self {
+    fn from(value: Array<T, N>) -> Self {
         value.into_iter().collect()
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, T> From<Array<N, T>> for LinkedList<T> {
-    fn from(value: Array<N, T>) -> Self {
+impl<const N: usize, T> From<Array<T, N>> for LinkedList<T> {
+    fn from(value: Array<T, N>) -> Self {
         value.into_iter().collect()
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, T> From<Array<N, T>> for VecDeque<T> {
-    fn from(value: Array<N, T>) -> Self {
+impl<const N: usize, T> From<Array<T, N>> for VecDeque<T> {
+    fn from(value: Array<T, N>) -> Self {
         value.into_iter().collect()
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, T> From<Array<N, T>> for Rc<Slice<T>> {
-    fn from(value: Array<N, T>) -> Self {
+impl<const N: usize, T> From<Array<T, N>> for Rc<Slice<T>> {
+    fn from(value: Array<T, N>) -> Self {
         let value = Rc::<[T]>::from(value.into_array());
         let value = Rc::into_raw(value);
         // Safety:
@@ -302,8 +302,8 @@ impl<const N: usize, T> From<Array<N, T>> for Rc<Slice<T>> {
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, T> From<Array<N, T>> for Arc<Slice<T>> {
-    fn from(value: Array<N, T>) -> Self {
+impl<const N: usize, T> From<Array<T, N>> for Arc<Slice<T>> {
+    fn from(value: Array<T, N>) -> Self {
         let value = Arc::<[T]>::from(value.into_array());
         // Safety:
         // - transmuting is safe because #[repr(transparent)]
@@ -312,8 +312,8 @@ impl<const N: usize, T> From<Array<N, T>> for Arc<Slice<T>> {
 }
 
 #[cfg(feature = "alloc")]
-impl<const N: usize, T> From<Array<N, T>> for Vec<T> {
-    fn from(value: Array<N, T>) -> Self {
+impl<const N: usize, T> From<Array<T, N>> for Vec<T> {
+    fn from(value: Array<T, N>) -> Self {
         let value = alloc::vec::Vec::from(value.into_array());
         // Safety:
         // - already non-empty by construction

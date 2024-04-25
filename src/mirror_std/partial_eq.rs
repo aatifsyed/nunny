@@ -28,7 +28,7 @@ where
     }
 }
 
-impl<A, B, const N: usize> PartialEq<&Slice<B>> for Array<N, A>
+impl<A, B, const N: usize> PartialEq<&Slice<B>> for Array<A, N>
 where
     A: PartialEq<B>,
 {
@@ -37,7 +37,7 @@ where
     }
 }
 
-impl<A, B, const N: usize> PartialEq<&mut Slice<B>> for Array<N, A>
+impl<A, B, const N: usize> PartialEq<&mut Slice<B>> for Array<A, N>
 where
     A: PartialEq<B>,
 {
@@ -46,43 +46,43 @@ where
     }
 }
 
-impl<A, B, const N: usize> PartialEq<Array<N, A>> for &Slice<B>
+impl<A, B, const N: usize> PartialEq<Array<A, N>> for &Slice<B>
 where
     B: PartialEq<A>,
 {
-    fn eq(&self, other: &Array<N, A>) -> bool {
+    fn eq(&self, other: &Array<A, N>) -> bool {
         <[_] as PartialEq<[_]>>::eq(self, other)
     }
 }
 
-impl<A, B, const N: usize> PartialEq<Array<N, A>> for &mut Slice<B>
+impl<A, B, const N: usize> PartialEq<Array<A, N>> for &mut Slice<B>
 where
     B: PartialEq<A>,
 {
-    fn eq(&self, other: &Array<N, A>) -> bool {
+    fn eq(&self, other: &Array<A, N>) -> bool {
         <[_] as PartialEq<[_]>>::eq(self, other)
     }
 }
 
-impl<A, B, const N: usize> PartialEq<Array<N, A>> for Slice<B>
+impl<A, B, const N: usize> PartialEq<Array<A, N>> for Slice<B>
 where
     B: PartialEq<A>,
 {
-    fn eq(&self, other: &Array<N, A>) -> bool {
+    fn eq(&self, other: &Array<A, N>) -> bool {
         <[_] as PartialEq<[_]>>::eq(self, other)
     }
 }
 
-impl<A, B, const N: usize> PartialEq<Array<N, B>> for Array<N, A>
+impl<A, B, const N: usize> PartialEq<Array<B, N>> for Array<A, N>
 where
     A: PartialEq<B>,
 {
-    fn eq(&self, other: &Array<N, B>) -> bool {
+    fn eq(&self, other: &Array<B, N>) -> bool {
         <[_] as PartialEq<[_]>>::eq(self, other)
     }
 }
 
-impl<A, B, const N: usize> PartialEq<Slice<B>> for Array<N, A>
+impl<A, B, const N: usize> PartialEq<Slice<B>> for Array<A, N>
 where
     A: PartialEq<B>,
 {
@@ -207,51 +207,51 @@ where
 }
 
 #[cfg(feature = "alloc")]
-impl<T, U, const N: usize> PartialEq<&Array<N, U>> for VecDeque<T>
+impl<T, U, const N: usize> PartialEq<&Array<U, N>> for VecDeque<T>
 where
     T: PartialEq<U>,
 {
-    fn eq(&self, other: &&Array<N, U>) -> bool {
+    fn eq(&self, other: &&Array<U, N>) -> bool {
         PartialEq::<&Slice<U>>::eq(self, &&***other)
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<T, U, const N: usize> PartialEq<&Array<N, U>> for Vec<T>
+impl<T, U, const N: usize> PartialEq<&Array<U, N>> for Vec<T>
 where
     T: PartialEq<U>,
 {
-    fn eq(&self, other: &&Array<N, U>) -> bool {
+    fn eq(&self, other: &&Array<U, N>) -> bool {
         <[_] as PartialEq<[_]>>::eq(self, other)
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<T, U, const N: usize> PartialEq<&mut Array<N, U>> for VecDeque<T>
+impl<T, U, const N: usize> PartialEq<&mut Array<U, N>> for VecDeque<T>
 where
     T: PartialEq<U>,
 {
-    fn eq(&self, other: &&mut Array<N, U>) -> bool {
+    fn eq(&self, other: &&mut Array<U, N>) -> bool {
         PartialEq::<&Slice<U>>::eq(self, &&***other)
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<T, U, const N: usize> PartialEq<Array<N, U>> for VecDeque<T>
+impl<T, U, const N: usize> PartialEq<Array<U, N>> for VecDeque<T>
 where
     T: PartialEq<U>,
 {
-    fn eq(&self, other: &Array<N, U>) -> bool {
+    fn eq(&self, other: &Array<U, N>) -> bool {
         PartialEq::<&Slice<U>>::eq(self, &&**other)
     }
 }
 
 #[cfg(feature = "alloc")]
-impl<T, U, const N: usize> PartialEq<Array<N, U>> for Vec<T>
+impl<T, U, const N: usize> PartialEq<Array<U, N>> for Vec<T>
 where
     T: PartialEq<U>,
 {
-    fn eq(&self, other: &Array<N, U>) -> bool {
+    fn eq(&self, other: &Array<U, N>) -> bool {
         <[_] as PartialEq<[_]>>::eq(self, other)
     }
 }

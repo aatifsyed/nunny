@@ -21,7 +21,7 @@ use crate::{Array, Slice, TryFromSliceError};
 use alloc::boxed::Box;
 // use alloc::{rc::Rc, sync::Arc};
 
-impl<'a, T, const N: usize> TryFrom<&'a Slice<T>> for &'a Array<N, T> {
+impl<'a, T, const N: usize> TryFrom<&'a Slice<T>> for &'a Array<T, N> {
     type Error = TryFromSliceError;
 
     fn try_from(value: &'a Slice<T>) -> Result<Self, Self::Error> {
@@ -34,7 +34,7 @@ impl<'a, T, const N: usize> TryFrom<&'a Slice<T>> for &'a Array<N, T> {
     }
 }
 
-impl<'a, T, const N: usize> TryFrom<&'a mut Slice<T>> for &'a mut Array<N, T> {
+impl<'a, T, const N: usize> TryFrom<&'a mut Slice<T>> for &'a mut Array<T, N> {
     type Error = TryFromSliceError;
 
     fn try_from(value: &'a mut Slice<T>) -> Result<Self, Self::Error> {
@@ -47,7 +47,7 @@ impl<'a, T, const N: usize> TryFrom<&'a mut Slice<T>> for &'a mut Array<N, T> {
     }
 }
 
-// impl<T, const N: usize> TryFrom<Arc<Slice<T>>> for Arc<Array<N, T>> {
+// impl<T, const N: usize> TryFrom<Arc<Slice<T>>> for Arc<Array<T, N>> {
 //     type Error = ();
 
 //     fn try_from(value: Arc<Slice<T>>) -> Result<Self, Self::Error> {
@@ -56,7 +56,7 @@ impl<'a, T, const N: usize> TryFrom<&'a mut Slice<T>> for &'a mut Array<N, T> {
 // }
 
 #[cfg(feature = "alloc")]
-impl<T, const N: usize> TryFrom<Vec<T>> for Array<N, T> {
+impl<T, const N: usize> TryFrom<Vec<T>> for Array<T, N> {
     type Error = Vec<T>;
 
     fn try_from(value: Vec<T>) -> Result<Self, Self::Error> {
@@ -69,7 +69,7 @@ impl<T, const N: usize> TryFrom<Vec<T>> for Array<N, T> {
     }
 }
 
-impl<T, const N: usize> TryFrom<&Slice<T>> for Array<N, T>
+impl<T, const N: usize> TryFrom<&Slice<T>> for Array<T, N>
 where
     T: Copy,
 {
@@ -84,7 +84,7 @@ where
         }
     }
 }
-impl<T, const N: usize> TryFrom<&mut Slice<T>> for Array<N, T>
+impl<T, const N: usize> TryFrom<&mut Slice<T>> for Array<T, N>
 where
     T: Copy,
 {
@@ -101,7 +101,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<N, T>> {
+impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<T, N>> {
     type Error = Box<Slice<T>>;
 
     fn try_from(value: Box<Slice<T>>) -> Result<Self, Self::Error> {
@@ -114,7 +114,7 @@ impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<N, T>> {
     }
 }
 
-// impl<T, const N: usize> TryFrom<Rc<Slice<T>>> for Rc<Array<N, T>> {
+// impl<T, const N: usize> TryFrom<Rc<Slice<T>>> for Rc<Array<T, N>> {
 //     type Error = ();
 
 //     fn try_from(value: Rc<Slice<T>>) -> Result<Self, Self::Error> {
@@ -123,7 +123,7 @@ impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<N, T>> {
 // }
 
 #[cfg(feature = "alloc")]
-impl<T, const N: usize> TryFrom<Vec<T>> for Box<Array<N, T>> {
+impl<T, const N: usize> TryFrom<Vec<T>> for Box<Array<T, N>> {
     type Error = Vec<T>;
 
     fn try_from(value: Vec<T>) -> Result<Self, Self::Error> {
@@ -144,9 +144,9 @@ impl<T, const N: usize> TryFrom<Vec<T>> for Box<Array<N, T>> {
 #[cfg(feature = "alloc")]
 unsafe fn boxed_slice_as_array_unchecked<T, const N: usize>(
     boxed_slice: Box<Slice<T>>,
-) -> Box<Array<N, T>> {
+) -> Box<Array<T, N>> {
     debug_assert_eq!(boxed_slice.len().get(), N);
 
     let ptr = Box::into_raw(boxed_slice);
-    unsafe { Box::from_raw(ptr as *mut Array<N, T>) }
+    unsafe { Box::from_raw(ptr as *mut Array<T, N>) }
 }

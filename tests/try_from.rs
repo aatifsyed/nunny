@@ -11,7 +11,7 @@ const _: () = {
     where
         T: 'a,
     {
-        <&'a Array<N, T> as TryFrom<&'a Slice<T>>>::try_from;
+        <&'a Array<T, N> as TryFrom<&'a Slice<T>>>::try_from;
     }
 };
 
@@ -20,19 +20,19 @@ const _: () = {
     where
         T: 'a,
     {
-        <&'a mut Array<N, T> as TryFrom<&'a mut Slice<T>>>::try_from;
+        <&'a mut Array<T, N> as TryFrom<&'a mut Slice<T>>>::try_from;
     }
 };
 
 // const _: () = {
 //     fn _test<T, const N: usize>() {
-//         <Arc<Array<N, T>> as TryFrom<Arc<Slice<T>>>>::try_from;
+//         <Arc<Array<T, N>> as TryFrom<Arc<Slice<T>>>>::try_from;
 //     }
 // };
 
 const _: () = {
     fn _test<T, const N: usize>() {
-        <Array<N, T> as TryFrom<Vec<T>>>::try_from;
+        <Array<T, N> as TryFrom<Vec<T>>>::try_from;
     }
 };
 
@@ -41,7 +41,7 @@ const _: () = {
     where
         T: Copy,
     {
-        <Array<N, T> as TryFrom<&Slice<T>>>::try_from;
+        <Array<T, N> as TryFrom<&Slice<T>>>::try_from;
     }
 };
 
@@ -60,7 +60,7 @@ const _: () = {
     where
         T: Copy,
     {
-        <Array<N, T> as TryFrom<&mut Slice<T>>>::try_from;
+        <Array<T, N> as TryFrom<&mut Slice<T>>>::try_from;
     }
 };
 
@@ -76,18 +76,18 @@ const _: () = {
 
 const _: () = {
     fn _test<T, const N: usize>() {
-        <Box<Array<N, T>> as TryFrom<Box<Slice<T>>>>::try_from;
+        <Box<Array<T, N>> as TryFrom<Box<Slice<T>>>>::try_from;
     }
 };
 
 // const _: () = {
 //     fn _test<T, const N: usize>() {
-//         <Rc<Array<N, T>> as TryFrom<Rc<Slice<T>>>>::try_from;
+//         <Rc<Array<T, N>> as TryFrom<Rc<Slice<T>>>>::try_from;
 //     }
 // };
 
 const _: () = {
     fn _test<T, const N: usize>() {
-        <Box<Array<N, T>> as TryFrom<Vec<T>>>::try_from;
+        <Box<Array<T, N>> as TryFrom<Vec<T>>>::try_from;
     }
 };
