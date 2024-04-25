@@ -75,6 +75,38 @@ impl<T> Vec<T> {
     pub fn of_with_capacity(item: T, capacity: usize) -> Self {
         let mut inner = alloc::vec::Vec::with_capacity(capacity);
         inner.push(item);
+        // Safety:
+        // - pushing the element succeeded
+        unsafe { Self::new_unchecked(inner) }
+    }
+
+    /// Create a [`NonEmpty`] heap-allocated vec with `len` items, filled with
+    /// [`Clone`]s of the given `value`.
+    ///
+    /// See also [`Self::filled_with`].
+    pub fn filled(value: T, len: NonZeroUsize) -> Self
+    where
+        T: Clone,
+    {
+        let mut inner = alloc::vec::Vec::new();
+        inner.resize(len.get(), value);
+        // Safety:
+        // - len is nonzero
+        unsafe { Self::new_unchecked(inner) }
+    }
+
+    /// Create a [`NonEmpty`] heap-allocated vec with `len` items, filled with
+    /// values returned from repeating the closure `f`.
+    ///
+    /// See also [`Self::filled`].
+    pub fn filled_with<F>(f: F, len: NonZeroUsize) -> Self
+    where
+        F: FnMut() -> T,
+    {
+        let mut inner = alloc::vec::Vec::new();
+        inner.resize_with(len.get(), f);
+        // Safety:
+        // - len is nonzero
         unsafe { Self::new_unchecked(inner) }
     }
     fn check(&self) {

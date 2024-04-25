@@ -163,6 +163,21 @@ macro_rules! array {
 /// *v.first_mut() = "goodbye";
 /// assert_eq!(v, ["goodbye", "world"])
 /// ```
+///
+/// For `vec![T; N]`, `N` must be evaluatable at `const` time, and `T` must be [`Clone`].
+/// ```compile_fail
+/// # use nunny::vec;
+/// let len = 1 + 1; // runtime variable
+/// let v = vec!["hello"; len];
+/// ```
+/// ```
+/// # use nunny::vec;
+/// let v = vec!["hello"; 1 + 1]; // compile time nonzero
+/// ```
+/// ```compile_fail
+/// # use nunny::vec;
+/// let v = vec!["hello"; 0]; // not allowed to be zero!
+/// ```
 #[cfg(feature = "alloc")]
 #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 #[macro_export]
@@ -174,6 +189,28 @@ macro_rules! vec {
             $crate::Array::new_unchecked([$($el),*])
         })
     };
+    ($el:expr; $n:expr) => {{
+        const LEN: usize = {
+            let n = $n;
+            assert!(n != 0);
+            n
+        };
+        let el = $el;
+        let mut it = $crate::__private::alloc::vec::Vec::new();
+        it.resize(LEN, el);
+        // Safety:
+        // - const evaluated `LEN` to check it's nonzero
+        unsafe {
+            $crate::Vec::new_unchecked(it)
+        }
+    }}
+}
+
+/// Implementation detail, semver-exempt.
+#[doc(hidden)]
+pub mod __private {
+    #[cfg(feature = "alloc")]
+    pub extern crate alloc;
 }
 
 /// Error returned in [`TryFrom`] implementations for reference conversions.
