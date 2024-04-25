@@ -268,7 +268,7 @@ mod cmp_std {
 }
 
 #[cfg(feature = "alloc")]
-impl<T> Clone for Box<Slice<T>>
+impl<T> Clone for alloc::boxed::Box<Slice<T>>
 where
     T: Clone,
 {
@@ -281,6 +281,9 @@ where
 }
 
 mod convert_std {
+    #[cfg(feature = "alloc")]
+    use alloc::boxed::Box;
+
     use crate::Error;
 
     use super::*;
@@ -301,10 +304,10 @@ mod convert_std {
     }
 
     #[cfg(feature = "alloc")]
-    impl<T> TryFrom<alloc::boxed::Box<[T]>> for alloc::boxed::Box<Slice<T>> {
+    impl<T> TryFrom<Box<[T]>> for Box<Slice<T>> {
         type Error = Error;
 
-        fn try_from(value: alloc::boxed::Box<[T]>) -> Result<Self, Self::Error> {
+        fn try_from(value: Box<[T]>) -> Result<Self, Self::Error> {
             match crate::Vec::new(value.into_vec()) {
                 Ok(it) => Ok(it.into_boxed_slice()),
                 Err(_) => Err(Error(())),

@@ -24,8 +24,14 @@ arbitrary1 = ["dep:arbitrary1", "std"]
 # Changing it to `quickcheck2` is not considered a breaking change
 quickcheck = ["quickcheck1"]
 quickcheck1 = ["dep:quickcheck1", "std"]
+# This feature will always track the latest (API) version of proptest.
+# Changing it to `proptest2` is not considered a breaking change
+# proptest has a `std` and `alloc` feature, but trying --no-default-features with them broke...
+proptest = ["proptest1"]
+proptest1 = ["dep:proptest1", "std"]
 
 [dependencies]
+proptest1 = { version = "1.4.0", package = "proptest", optional = true }
 arbitrary1 = { version = "1.3.2", package = "arbitrary", optional = true }
 quickcheck1 = { version = "1.0.3", package = "quickcheck", optional = true, default-features = false }
 serde1 = { version = "1.0.198", package = "serde", optional = true, default-features = false }

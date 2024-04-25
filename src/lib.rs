@@ -7,6 +7,8 @@
 extern crate alloc;
 #[cfg(feature = "arbitrary1")]
 mod arbitrary1;
+#[cfg(feature = "proptest1")]
+mod proptest1;
 #[cfg(feature = "quickcheck1")]
 mod quickcheck1;
 #[cfg(feature = "serde1")]
