@@ -1,5 +1,27 @@
-//! For every method or trait impl for a collection in [`core`] or [`std`], there should
-//! be a corresponding method or impl in this library.
+//! The definitive non-empty slice/array/vec library for Rust.
+//!
+//! # Features
+//! - Nonempty-by-construction API
+//!   ```
+//!   # use nunny::NonEmpty;
+//!   let mut my_vec = NonEmpty::<Vec<_>>::one("hello"); // construct once
+//!   my_vec.push("world");                              // continue using your normal APIs
+//!   let hello: &str = my_vec.first();                  // preserve the guarantee that there is at least one element
+//!   ```
+//! - `#[repr(transparent)]` allows advanced usecases and guarantees optimum performance:
+//!   ```
+//!   # use nunny::NonEmpty;
+//!   let src = &mut ["hello", "world"];
+//!   let ne = NonEmpty::<[_]>::new_mut(src).unwrap();
+//!   //  ^ uses the same backing memory
+//!   let world: &str = ne.last();
+//!   ```
+//! - Total API coverage.
+//!   For every impl of [`From`], [`TryFrom`], [`PartialEq`] and [`PartialOrd`] in [`std`][^1],
+//!   there is a corresponding impl in this library for [`Slice`], [`Array`] and [`Vec`].
+//!
+//! [^1]: Barring impls on `!#[fundamental]` types like [`Arc`](std::sync::Arc).
+//!       Fun fact: our tests were generated from [`std`]'s rustdoc!
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -33,8 +55,11 @@ pub struct NonEmpty<T: ?Sized> {
     inner: T,
 }
 
+/// Type alias to save keystrokes
 pub type Array<T, const N: usize> = NonEmpty<[T; N]>;
+/// Type alias to save keystrokes
 pub type Slice<T> = NonEmpty<[T]>;
+/// Type alias to save keystrokes
 #[cfg(feature = "alloc")]
 pub type Vec<T> = NonEmpty<alloc::vec::Vec<T>>;
 
