@@ -287,6 +287,18 @@ mod convert_std {
         }
     }
 
+    #[cfg(feature = "alloc")]
+    impl<T> TryFrom<alloc::boxed::Box<[T]>> for alloc::boxed::Box<Slice<T>> {
+        type Error = Error;
+
+        fn try_from(value: alloc::boxed::Box<[T]>) -> Result<Self, Self::Error> {
+            match crate::Vec::new(value.into_vec()) {
+                Ok(it) => Ok(it.into_boxed_slice()),
+                Err(_) => Err(Error(())),
+            }
+        }
+    }
+
     impl<'a, T> From<&'a Slice<T>> for &'a [T] {
         fn from(value: &'a Slice<T>) -> Self {
             value.as_slice()

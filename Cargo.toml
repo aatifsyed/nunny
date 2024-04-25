@@ -10,10 +10,15 @@ repository = "https://github.com/aatifsyed/nunny"
 
 [features]
 default = ["std"]
-std = ["alloc"]
-alloc = []
+std = ["alloc", "serde1/std"]
+alloc = ["serde1?/alloc"]
+# This feature will always track the latest (API) version of serde.
+# Changing it to `serde2` is not considered a breaking change
+serde = ["serde1"]
+serde1 = ["dep:serde1"]
 
 [dependencies]
+serde1 = { version = "1.0.198", package = "serde", optional = true, default-features = false }
 
 [workspace]
 members = ["gen"]

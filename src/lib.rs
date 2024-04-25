@@ -5,6 +5,8 @@
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
+#[cfg(feature = "serde1")]
+mod serde1;
 
 mod array;
 mod mirror_std {
