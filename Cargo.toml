@@ -29,12 +29,17 @@ quickcheck1 = ["dep:quickcheck1", "std"]
 # proptest has a `std` and `alloc` feature, but trying --no-default-features with them broke...
 proptest = ["proptest1"]
 proptest1 = ["dep:proptest1", "std"]
+# This feature will always track the latest (API) version of schemars.
+# Changing it to `schemars09` is not considered a breaking change
+schemars = ["schemars08"]
+schemars08 = ["dep:schemars08", "std"]
 
 [dependencies]
 proptest1 = { version = "1.4.0", package = "proptest", optional = true }
 arbitrary1 = { version = "1.3.2", package = "arbitrary", optional = true }
 quickcheck1 = { version = "1.0.3", package = "quickcheck", optional = true, default-features = false }
 serde1 = { version = "1.0.198", package = "serde", optional = true, default-features = false }
+schemars08 = { version = "0.8.16", package = "schemars", optional = true, default-features = false }
 
 [workspace]
 members = ["gen"]

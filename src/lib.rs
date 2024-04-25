@@ -71,6 +71,9 @@ mod proptest1;
 #[cfg(feature = "quickcheck1")]
 #[cfg_attr(do_doc_cfg, doc(cfg(feature = "quickcheck")))]
 mod quickcheck1;
+#[cfg(feature = "schemars08")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "schemars")))]
+mod schemars08;
 #[cfg(feature = "serde1")]
 #[cfg_attr(do_doc_cfg, doc(cfg(feature = "serde")))]
 mod serde1;
