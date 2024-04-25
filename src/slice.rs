@@ -177,6 +177,35 @@ mod partial_eq_std {
             <[_] as PartialEq<[_]>>::eq(self, other)
         }
     }
+
+    // converse
+    //---------
+
+    impl<T, U> PartialEq<Slice<T>> for [U]
+    where
+        U: PartialEq<T>,
+    {
+        fn eq(&self, other: &Slice<T>) -> bool {
+            <[_] as PartialEq<[_]>>::eq(self, other)
+        }
+    }
+    impl<T, U, const N: usize> PartialEq<Slice<T>> for [U; N]
+    where
+        U: PartialEq<T>,
+    {
+        fn eq(&self, other: &Slice<T>) -> bool {
+            <[_] as PartialEq<[_]>>::eq(self, other)
+        }
+    }
+    #[cfg(feature = "alloc")]
+    impl<T, U> PartialEq<Slice<T>> for alloc::vec::Vec<U>
+    where
+        U: PartialEq<T>,
+    {
+        fn eq(&self, other: &Slice<T>) -> bool {
+            <[_] as PartialEq<[_]>>::eq(self, other)
+        }
+    }
 }
 
 mod cmp_std {
@@ -206,6 +235,35 @@ mod cmp_std {
         T: PartialOrd,
     {
         fn partial_cmp(&self, other: &alloc::vec::Vec<T>) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+
+    // converse
+    //---------
+
+    impl<T> PartialOrd<Slice<T>> for [T]
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &Slice<T>) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+    impl<T, const N: usize> PartialOrd<Slice<T>> for [T; N]
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &Slice<T>) -> Option<Ordering> {
+            <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
+        }
+    }
+    #[cfg(feature = "alloc")]
+    impl<T> PartialOrd<Slice<T>> for alloc::vec::Vec<T>
+    where
+        T: PartialOrd,
+    {
+        fn partial_cmp(&self, other: &Slice<T>) -> Option<Ordering> {
             <[_] as PartialOrd<[_]>>::partial_cmp(self, other)
         }
     }

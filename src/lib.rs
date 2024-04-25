@@ -149,6 +149,7 @@ macro_rules! slice_iter {
 }
 pub(crate) use slice_iter;
 
+#[track_caller]
 const unsafe fn non_zero_usize(n: usize) -> NonZeroUsize {
     match NonZeroUsize::new(n) {
         Some(it) => it,
@@ -156,6 +157,7 @@ const unsafe fn non_zero_usize(n: usize) -> NonZeroUsize {
     }
 }
 
+#[track_caller]
 const unsafe fn unreachable() -> ! {
     match cfg!(debug_assertions) {
         true => unreachable(),
