@@ -20,13 +20,13 @@ impl<T> Slice<T> {
         const new_unchecked(&[T]) -> &Self;
         new_mut_unchecked(&mut [T]) -> &mut Self;
     }
-    pub const fn of(item: &T) -> &Self {
+    pub const fn one(item: &T) -> &Self {
         let shared = slice::from_ref(item);
         // Safety:
         // - len is 1
         unsafe { Self::new_unchecked(shared) }
     }
-    pub fn of_mut(item: &mut T) -> &mut Self {
+    pub fn one_mut(item: &mut T) -> &mut Self {
         let shared = slice::from_mut(item);
         // Safety:
         // - len is 1

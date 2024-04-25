@@ -38,21 +38,6 @@ impl<const N: usize, T> Array<T, N> {
     }
 }
 
-impl<T> Array<T, 1> {
-    pub fn of(item: T) -> Self {
-        let src = [item];
-        unsafe { Self::new_unchecked(src) }
-    }
-    pub fn of_mut(item: &mut T) -> &mut Self {
-        let src = array::from_mut(item);
-        unsafe { Self::new_mut_unchecked(src) }
-    }
-    pub fn of_ref(item: &T) -> &Self {
-        let src = array::from_ref(item);
-        unsafe { Self::new_ref_unchecked(src) }
-    }
-}
-
 impl<const N: usize, T> Array<T, N> {
     pub fn each_ref(&self) -> Array<&T, N> {
         Array {
@@ -98,6 +83,69 @@ impl<const N: usize, T> Array<T, N> {
         inner
     }
 }
+
+impl<T> Array<T, 1> {
+    pub const fn one(item: T) -> Self {
+        let src = [item];
+        unsafe { Self::new_unchecked(src) }
+    }
+    pub fn one_mut(item: &mut T) -> &mut Self {
+        let src = array::from_mut(item);
+        unsafe { Self::new_mut_unchecked(src) }
+    }
+    pub const fn one_ref(item: &T) -> &Self {
+        let src = array::from_ref(item);
+        unsafe { Self::new_ref_unchecked(src) }
+    }
+}
+
+macro_rules! array_of {
+    (one) => {
+        /// These methods are provided for fixed arrays where length is:
+        /// - an integer in the range 1..=256
+        /// - powers of two ..=65536
+        impl<T> Array<T, 1> {
+            pub const fn of(src: [T; 1]) -> Self {
+                // Safety:
+                // - N is not zero
+                unsafe { Self::new_unchecked(src) }
+            }
+            pub fn of_mut(src: &mut [T; 1]) -> &mut Self {
+                // Safety:
+                // - N is not zero
+                unsafe { Self::new_mut_unchecked(src) }
+            }
+            pub fn of_ref(src: &[T; 1]) -> &Self {
+                // Safety:
+                // - N is not zero
+                unsafe { Self::new_ref_unchecked(src) }
+            }
+        }
+    };
+    ($n:literal) => {
+        #[doc(hidden)]
+        #[allow(clippy::zero_prefixed_literal)]
+        impl<T> Array<T, $n> {
+            pub const fn of(src: [T; $n]) -> Self {
+                // Safety:
+                // - N is not zero
+                unsafe { Self::new_unchecked(src) }
+            }
+            pub fn of_mut(src: &mut [T; $n]) -> &mut Self {
+                // Safety:
+                // - N is not zero
+                unsafe { Self::new_mut_unchecked(src) }
+            }
+            pub fn of_ref(src: &[T; $n]) -> &Self {
+                // Safety:
+                // - N is not zero
+                unsafe { Self::new_ref_unchecked(src) }
+            }
+        }
+    };
+}
+
+crate::for_nonzeroes!(array_of);
 
 impl<const N: usize, T> Deref for Array<T, N> {
     type Target = Slice<T>;
