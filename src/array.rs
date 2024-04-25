@@ -3,50 +3,64 @@ use core::{
     ops::{Deref, DerefMut},
 };
 
-use crate::{Array, Slice};
+use crate::{Array, NonEmpty, Slice};
 
-impl<T, const N: usize> Eq for Array<T, N> where T: Eq {}
+impl<T, const N: usize> Eq for NonEmpty<[T; N]> where T: Eq {}
 
-/// Creation
+/// [`Array`] methods
 impl<const N: usize, T> Array<T, N> {
-    crate::map_non_empty! {
-        /// Create a new reference to an array.
-        /// If you have special knowledge of the array
-        new_ref(&[T; N]) -> &Self: Self::new_ref_unchecked;
-        new_mut(&mut [T; N]) -> &mut Self: Self::new_mut_unchecked;
-    }
+    ///////////
+    // Creation
+    ///////////
 
-    pub const fn new(src: [T; N]) -> Result<Self, [T; N]> {
-        match N != 0 {
-            true => Ok(unsafe { Self::new_unchecked(src) }),
-            false => Err(src),
-        }
+    crate::map_non_empty! {
+        const
+        /// Returns a [`NonEmpty`] array.
+        new_ref(&[T; N]) -> &Self: Self::new_ref_unchecked;
+
+        /// Returns a [`NonEmpty`] array.
+        new_mut(&mut [T; N]) -> &mut Self: Self::new_mut_unchecked;
+
+        /// Returns a [`NonEmpty`] array.
+        new([T; N]) -> Self: Self::new_unchecked;
     }
 
     crate::transmuting! {
-        const new_ref_unchecked(&[T; N]) -> &Self;
+        const
+        /// Create a [`NonEmpty`] array.
+        new_ref_unchecked(&[T; N]) -> &Self;
+
+        /// Create a [`NonEmpty`] array.
         new_mut_unchecked(&mut [T; N]) -> &mut Self;
+
         // const new_unchecked([T; N]) -> Self; // compiler can't tell this is OK
     }
 
+    /// Create a [`NonEmpty`] array.
+    ///
     /// # Safety
     /// - `src` must not be empty
     pub const unsafe fn new_unchecked(src: [T; N]) -> Self {
         Self { inner: src }
     }
-}
 
-impl<const N: usize, T> Array<T, N> {
+    ////////////
+    // Utilities
+    ////////////
+
+    /// Borrows each element and returns a [`NonEmpty`] array of references with the same size as self.
     pub fn each_ref(&self) -> Array<&T, N> {
         Array {
             inner: self.as_array().each_ref(),
         }
     }
+    /// Borrows each element mutably and returns a [`NonEmpty`] array of mutable references with the same size as self.
     pub fn each_mut(&mut self) -> Array<&mut T, N> {
         Array {
             inner: self.as_mut_array().each_mut(),
         }
     }
+    /// Returns a [`NonEmpty`] array of the same size as self, with function f applied to each element in order.
     pub fn map<F, U>(self, f: F) -> Array<U, N>
     where
         F: FnMut(T) -> U,
@@ -55,48 +69,60 @@ impl<const N: usize, T> Array<T, N> {
             inner: self.into_array().map(f),
         }
     }
-}
 
-impl<const N: usize, T> Array<T, N> {
+    ///////////////////
+    // Inner references
+    ///////////////////
+
+    /// Returns a [`NonEmpty`] slice.
     pub const fn as_slice(&self) -> &Slice<T> {
         let src = self.inner.as_slice();
         // Safety
         // - src is not empty by construction
         unsafe { Slice::new_unchecked(src) }
     }
+    /// Returns a [`NonEmpty`] slice.
     pub fn as_mut_slice(&mut self) -> &mut Slice<T> {
         let src = self.inner.as_mut_slice();
         // Safety
         // - src is not empty by construction
         unsafe { Slice::new_mut_unchecked(src) }
     }
+    /// Returns a [`primitive array`](primitive@array).
     pub const fn as_array(&self) -> &[T; N] {
         &self.inner
     }
+    /// Returns a [`primitive array`](primitive@array).
     pub fn as_mut_array(&mut self) -> &mut [T; N] {
         &mut self.inner
     }
+    /// Returns a [`primitive array`](primitive@array).
     pub fn into_array(self) -> [T; N] {
         let Self { inner } = self;
         inner
     }
 }
 
+/// Special case for [`Array`]s of length one
 impl<T> Array<T, 1> {
+    /// Create a [`NonEmpty`] array of a single element
     pub const fn of(item: T) -> Self {
         let src = [item];
         unsafe { Self::new_unchecked(src) }
     }
+    /// Create a [`NonEmpty`] array of a single mutable reference
     pub fn of_mut(item: &mut T) -> &mut Self {
         let src = array::from_mut(item);
         unsafe { Self::new_mut_unchecked(src) }
     }
+    /// Create a [`NonEmpty`] array of a single reference
     pub const fn of_ref(item: &T) -> &Self {
         let src = array::from_ref(item);
         unsafe { Self::new_ref_unchecked(src) }
     }
 }
 
+/// [`Array`] to [`Slice`]
 impl<const N: usize, T> Deref for Array<T, N> {
     type Target = Slice<T>;
 
@@ -104,6 +130,7 @@ impl<const N: usize, T> Deref for Array<T, N> {
         self.as_slice()
     }
 }
+/// [`Array`] to [`Slice`]
 impl<const N: usize, T> DerefMut for Array<T, N> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.as_mut_slice()
@@ -260,10 +287,10 @@ mod convert_std {
     use super::*;
 
     impl<T, const N: usize> TryFrom<[T; N]> for Array<T, N> {
-        type Error = [T; N];
+        type Error = Error;
 
         fn try_from(value: [T; N]) -> Result<Self, Self::Error> {
-            Self::new(value)
+            Self::new(value).ok_or(Error(()))
         }
     }
     impl<'a, T, const N: usize> TryFrom<&'a [T; N]> for &'a Array<T, N> {

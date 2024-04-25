@@ -1,14 +1,15 @@
 //! The definitive non-empty slice/array/vec library for Rust.
 //!
 //! # Features
-//! - Nonempty-by-construction API
+//! Nonempty-by-construction API
 //!   ```
 //!   # use nunny::NonEmpty;
 //!   let mut my_vec = NonEmpty::<Vec<_>>::of("hello"); // construct once
 //!   my_vec.push("world");                             // continue using your normal APIs
 //!   let hello: &str = my_vec.first();                 // preserve the guarantee that there is at least one element
 //!   ```
-//! - `#[repr(transparent)]` allows advanced usecases and guarantees optimum performance[^1]:
+//!
+//! `#[repr(transparent)]` allows advanced usecases and guarantees optimum performance[^1]:
 //!   ```
 //!   # use nunny::NonEmpty;
 //!   let src = &mut ["hello", "world"];
@@ -16,7 +17,8 @@
 //!   //  ^ uses the same backing memory
 //!   let world: &str = ne.last();
 //!   ```
-//! - Total API coverage.
+//!
+//! Total API coverage.
 //!   For every impl of [`From`], [`TryFrom`], [`PartialEq`] and [`PartialOrd`] in [`std`][^2],
 //!   there is a corresponding impl in this library for [`Slice`], [`Array`] and [`Vec`].
 //!   _This includes more exotic types_:
@@ -27,25 +29,28 @@
 //!   let cow: Cow<NonEmpty<[_]>> = (&*nun).into();
 //!   let arc: Arc<NonEmpty<[_]>> = cow.into_owned().into();
 //!   ```
-//! - `const`-friendly API. Where possible, all methods are `const`.
+//!
+//! `const`-friendly API. Where possible, all methods are `const`.
 //!   ```
 //!   # use nunny::{NonEmpty, slice};
 //!   const TWO: &NonEmpty<[&str]> = slice!["together", "forever"];
 //!   const FIRST: &str = TWO.first();
 //!   const ONE: &NonEmpty<[&str]> = NonEmpty::<[_]>::of(&"lonely");
 //!   ```
-//! - Extensive feature gating supporting:
-//!   - `no-std` environments with no allocator.
-//!   - `alloc`-enabled environments.
-//!   - full-`std`-enabled environments.
-//!   - interaction with crates like [`serde`](serde1) and [`arbitrary`](arbitrary1).
-//! - Thoughtful design:
-//!   - [`NonZeroUsize`] is inserted [where](Slice::len) [appropriate](Vec::truncate).
-//!   - Everything [`Deref`](core::ops::Deref)/[`DerefMut`](core::ops::DerefMut)s
-//!     down to a [`NonEmpty<Slice<T>>`], which in turn `deref/mut`s down to a `[T]`.
-//!   - Liberal applications of [`cmp`](core::cmp), [`borrow`](core::borrow), [`convert`](core::convert)
-//!     traits.
-//!     If there's a missing API that you'd like, please raise an issue!
+//!
+//! Extensive feature gating supporting:
+//! - `no-std` environments with no allocator.
+//! - `alloc`-enabled environments.
+//! - full-`std`-enabled environments.
+//! - interaction with crates like [`serde`](::serde1) and [`arbitrary`](::arbitrary1).
+//!
+//! Thoughtful design:
+//! - [`NonZeroUsize`] is inserted [where](Slice::len) [appropriate](Vec::truncate).
+//! - Everything [`Deref`](core::ops::Deref)/[`DerefMut`](core::ops::DerefMut)s
+//!   down to a [`NonEmpty<Slice<T>>`], which in turn `deref/mut`s down to a `[T]`.
+//! - Liberal applications of [`cmp`](core::cmp), [`borrow`](core::borrow), [`convert`](core::convert)
+//!   traits.
+//!   If there's a missing API that you'd like, please raise an issue!
 //!
 //! [^1]: Other crates like [`nonempty`](https://docs.rs/nonempty/latest/nonempty/struct.NonEmpty.html)
 //!       require an indirection.
@@ -78,6 +83,14 @@ mod vec;
 
 use core::{convert::Infallible, fmt, num::NonZeroUsize};
 
+/// A wrapper struct around non-empty slices/arrays/vectors.
+///
+/// You may wish to use the following type aliases instead:
+/// - [`Slice`].
+/// - [`Vec`].
+/// - [`Array`].
+///
+/// See also [crate documentation](crate)
 #[derive(Debug, Clone, Copy, Hash)]
 #[repr(transparent)]
 pub struct NonEmpty<T: ?Sized> {
@@ -92,6 +105,17 @@ pub type Slice<T> = NonEmpty<[T]>;
 #[cfg(feature = "alloc")]
 pub type Vec<T> = NonEmpty<alloc::vec::Vec<T>>;
 
+/// Create a non-empty slice
+/// ```
+/// # use nunny::{NonEmpty, slice};
+/// const SLICE: &NonEmpty<[&str]> = slice!["hello", "world"];
+/// ```
+///
+/// Note that no `slice_mut` is provided[^1] - users are expected to use [`array!`]
+/// and [`Array::as_mut_slice`] as required.
+///
+/// [^1]: See [this blog post](https://blog.m-ou.se/super-let/) for more on why
+/// `slice_mut` is impossible to implement in Rust today.
 #[macro_export]
 macro_rules! slice {
     ($($el:expr),+ $(,)?) => {
@@ -103,17 +127,14 @@ macro_rules! slice {
     };
 }
 
-#[macro_export]
-macro_rules! slice_mut {
-    ($($el:expr),+ $(,)?) => {
-        // Safety:
-        // - `+` guarantees that at least one item is given
-        unsafe {
-            $crate::Slice::new_mut_unchecked(&mut [$($el),*])
-        }
-    };
-}
-
+/// Create a non-empty array
+/// ```
+/// # use nunny::array;
+/// let mut arr = array!["hello", "world"];
+/// let slc = arr.as_mut_slice();
+/// *slc.first_mut() = "goodbye";
+/// assert_eq!(arr, ["goodbye", "world"])
+/// ```
 #[macro_export]
 macro_rules! array {
     ($($el:expr),+ $(,)?) => {
@@ -125,6 +146,13 @@ macro_rules! array {
     };
 }
 
+/// Create a non-empty heap-allocated vector
+/// ```
+/// # use nunny::{NonEmpty, vec};
+/// let mut v = vec!["hello", "world"];
+/// *v.first_mut() = "goodbye";
+/// assert_eq!(v, ["goodbye", "world"])
+/// ```
 #[cfg(feature = "alloc")]
 #[macro_export]
 macro_rules! vec {
@@ -137,6 +165,7 @@ macro_rules! vec {
     };
 }
 
+/// Error returned in [`TryFrom`] implementations for reference conversions.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Error(());
 
@@ -153,6 +182,7 @@ macro_rules! transmuting {
     () => {}; // base case
     (const $(#[$meta:meta])* $ident:ident($in:ty) -> $out:ty; $($rest:tt)*) => {
         $(#[$meta])*
+        ///
         /// # Safety
         /// - `src` must not be empty
         pub const unsafe fn $ident(src: $in) -> $out {
@@ -165,6 +195,7 @@ macro_rules! transmuting {
     };
     ($(#[$meta:meta])* $ident:ident($in:ty) -> $out:ty; $($rest:tt)*) => {
         $(#[$meta])*
+        ///
         /// # Safety
         /// - `src` must not be empty
         pub unsafe fn $ident(src: $in) -> $out {
@@ -182,6 +213,7 @@ macro_rules! map_non_empty {
     () => {}; // base case
     (const $(#[$meta:meta])* $ident:ident($in:ty) -> $out:ty: $mapper:path; $($rest:tt)*) => {
         $(#[$meta])*
+        ///
         /// Returns [`None`] if `src` is empty.
         pub const fn $ident(src: $in) -> Option<$out> {
             match src.is_empty() {
@@ -195,6 +227,7 @@ macro_rules! map_non_empty {
     };
     ($(#[$meta:meta])* $ident:ident($in:ty) -> $out:ty: $mapper:path; $($rest:tt)*) => {
         $(#[$meta])*
+        ///
         /// Returns [`None`] if `src` is empty.
         pub fn $ident(src: $in) -> Option<$out> {
             match src.is_empty() {
@@ -278,6 +311,7 @@ const unsafe fn unreachable() -> ! {
     }
 }
 
+/// Error returned in [`TryFrom`] implementations for reference conversions.
 #[derive(Debug, Clone, Copy)]
 pub struct TryFromSliceError(());
 

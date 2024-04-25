@@ -6,9 +6,9 @@ use core::{
 
 use alloc::{boxed::Box, collections::TryReserveError};
 
-use crate::{Slice, Vec};
+use crate::{NonEmpty, Slice, Vec};
 
-impl<T> Eq for Vec<T> where T: Eq {}
+impl<T> Eq for NonEmpty<alloc::vec::Vec<T>> where T: Eq {}
 impl<T, U> PartialEq<Vec<U>> for Vec<T>
 where
     T: PartialEq<U>,
@@ -18,63 +18,12 @@ where
     }
 }
 
-/// Constructors
-impl<T> Vec<T> {
-    crate::map_non_empty! {
-        new_ref(&alloc::vec::Vec<T>) -> &Self: Self::new_ref_unchecked;
-        new_mut(&mut alloc::vec::Vec<T>) -> &mut Self: Self::new_mut_unchecked;
-    }
-    crate::transmuting! {
-        new_unchecked(alloc::vec::Vec<T>) -> Self;
-        new_ref_unchecked(&alloc::vec::Vec<T>) -> &Self;
-        new_mut_unchecked(&mut alloc::vec::Vec<T>) -> &mut Self;
-    }
-    pub fn new(src: alloc::vec::Vec<T>) -> Result<Self, alloc::vec::Vec<T>> {
-        match src.is_empty() {
-            true => Ok(unsafe { Self::new_unchecked(src) }),
-            false => Err(src),
-        }
-    }
-    pub fn of(item: T) -> Self {
-        Self::of_with_capacity(item, 1)
-    }
-    pub fn of_with_capacity(item: T, capacity: usize) -> Self {
-        let mut inner = alloc::vec::Vec::with_capacity(capacity);
-        inner.push(item);
-        unsafe { Self::new_unchecked(inner) }
-    }
-    fn check(&self) {
-        debug_assert_ne!(self.inner.len(), 0)
-    }
-}
-
-impl<T> Vec<T> {
-    pub fn as_vec(&self) -> &alloc::vec::Vec<T> {
-        self.check();
-        &self.inner
-    }
-    /// # Safety
-    /// - returned vec must not be emptied through this reference
-    pub unsafe fn as_mut_vec(&mut self) -> &mut alloc::vec::Vec<T> {
-        self.check();
-        &mut self.inner
-    }
-    pub fn into_vec(self) -> alloc::vec::Vec<T> {
-        let Self { inner } = self;
-        inner
-    }
-    pub fn as_slice(&self) -> &Slice<T> {
-        unsafe { Slice::new_unchecked(self.as_vec()) }
-    }
-    pub fn as_mut_slice(&mut self) -> &mut Slice<T> {
-        unsafe { Slice::new_mut_unchecked(self.as_mut_vec()) }
-    }
-}
-
 macro_rules! forward_mut {
     ($( $(#[$meta:meta])* $vis:vis fn $ident:ident(&mut self $(,$arg:ident: $ty:ty)* $(,)?) $(-> $ret:ty)?);* $(;)?) => {
         $(
             $(#[$meta])*
+            ///
+            #[doc = concat!("See [`", stringify!($ident), "`](alloc::vec::Vec::", stringify!($ident), ").")]
             $vis fn $ident(&mut self $(, $arg: $ty)*) $(-> $ret)? {
                 // Safety:
                 // - operation does not remove elements
@@ -84,8 +33,86 @@ macro_rules! forward_mut {
     };
 }
 
-/// Forwarded and shimmed methods, in rustdoc order for [`alloc::vec::Vec`].
+/// [`Vec`] methods
 impl<T> Vec<T> {
+    ///////////
+    // Creation
+    ///////////
+
+    crate::map_non_empty! {
+        /// Create a new [`NonEmpty`] heap-allocated vec
+        new_ref(&alloc::vec::Vec<T>) -> &Self: Self::new_ref_unchecked;
+        /// Create a new [`NonEmpty`] heap-allocated vec
+        new_mut(&mut alloc::vec::Vec<T>) -> &mut Self: Self::new_mut_unchecked;
+    }
+    crate::transmuting! {
+        /// Create a new [`NonEmpty`] heap-allocated vec
+        new_unchecked(alloc::vec::Vec<T>) -> Self;
+        /// Create a new [`NonEmpty`] heap-allocated vec
+        new_ref_unchecked(&alloc::vec::Vec<T>) -> &Self;
+        /// Create a new [`NonEmpty`] heap-allocated vec
+        new_mut_unchecked(&mut alloc::vec::Vec<T>) -> &mut Self;
+    }
+    /// Create a new [`NonEmpty`] heap-allocated vec, returning the original
+    /// allocation if it was empty.
+    pub fn new(src: alloc::vec::Vec<T>) -> Result<Self, alloc::vec::Vec<T>> {
+        match src.is_empty() {
+            true => Ok(unsafe { Self::new_unchecked(src) }),
+            false => Err(src),
+        }
+    }
+
+    ////////////
+    // Utilities
+    ////////////
+
+    /// Create a [`NonEmpty`] heap-allocated vec, of a single element.
+    pub fn of(item: T) -> Self {
+        Self::of_with_capacity(item, 1)
+    }
+    /// Create a [`NonEmpty`] heap-allocated vec, of a single element, with
+    /// capacity for `capacity` elements without (re)-allocating.
+    pub fn of_with_capacity(item: T, capacity: usize) -> Self {
+        let mut inner = alloc::vec::Vec::with_capacity(capacity);
+        inner.push(item);
+        unsafe { Self::new_unchecked(inner) }
+    }
+    fn check(&self) {
+        debug_assert_ne!(self.inner.len(), 0)
+    }
+
+    /// Returns a [`std::vec::Vec`].
+    pub fn as_vec(&self) -> &alloc::vec::Vec<T> {
+        self.check();
+        &self.inner
+    }
+    /// Returns a [`std::vec::Vec`].
+    ///
+    /// # Safety
+    /// - returned vec must not be emptied through this reference
+    pub unsafe fn as_mut_vec(&mut self) -> &mut alloc::vec::Vec<T> {
+        self.check();
+        &mut self.inner
+    }
+    /// Returns a [`std::vec::Vec`].
+    pub fn into_vec(self) -> alloc::vec::Vec<T> {
+        let Self { inner } = self;
+        inner
+    }
+    /// Returns a [`NonEmpty`] slice.
+    pub fn as_slice(&self) -> &Slice<T> {
+        unsafe { Slice::new_unchecked(self.as_vec()) }
+    }
+    /// Returns a [`NonEmpty`] slice.
+    pub fn as_mut_slice(&mut self) -> &mut Slice<T> {
+        unsafe { Slice::new_mut_unchecked(self.as_mut_vec()) }
+    }
+
+    //////////////////
+    // Shimmed methods (rustdoc order)
+    //////////////////
+
+    /// Returns the known non-zero length.
     pub fn capacity(&self) -> NonZeroUsize {
         self.check();
         unsafe { crate::non_zero_usize(self.as_vec().capacity()) }
@@ -100,6 +127,7 @@ impl<T> Vec<T> {
         pub fn shrink_to(&mut self, min_capacity: usize);
     }
 
+    /// Return a [`NonEmpty`] boxed slice.
     pub fn into_boxed_slice(self) -> Box<Slice<T>> {
         match cfg!(debug_assertions) {
             true => {
@@ -122,6 +150,9 @@ impl<T> Vec<T> {
         }
     }
 
+    /// Shortens the vector to a guaranteed-nonzero length
+    ///
+    /// See [`truncate`](alloc::vec::Vec::truncate).
     pub fn truncate(&mut self, len: NonZeroUsize) {
         // Safety:
         // - len is not zero, so vector will not be emptied
@@ -130,7 +161,7 @@ impl<T> Vec<T> {
     }
 
     /// # Safety
-    /// - See [`alloc::vec::Vec::set_len`].
+    /// - See [`set_len`](alloc::vec::Vec::set_len).
     pub unsafe fn set_len(&mut self, new_len: NonZeroUsize) {
         // Safety:
         // - len is not zero, so vector will not be emptied
@@ -142,6 +173,7 @@ impl<T> Vec<T> {
         pub fn insert(&mut self, index: usize, element: T);
     }
 
+    /// See [`dedup_by_key`](alloc::vec::Vec::dedup_by_key).
     pub fn dedup_by_key<F, K>(&mut self, key: F)
     where
         F: FnMut(&mut T) -> K,
@@ -152,6 +184,7 @@ impl<T> Vec<T> {
         unsafe { self.as_mut_vec() }.dedup_by_key(key);
         self.check();
     }
+    /// See [`dedup_by`](alloc::vec::Vec::dedup_by).
     pub fn dedup_by<F>(&mut self, same_bucket: F)
     where
         F: FnMut(&mut T, &mut T) -> bool,
@@ -165,10 +198,14 @@ impl<T> Vec<T> {
         pub fn push(&mut self, value: T);
         pub fn append(&mut self, other: &mut alloc::vec::Vec<T>);
     }
+    /// Returns the known non-zero length.
     pub fn len(&self) -> NonZeroUsize {
         self.as_slice().len()
     }
+
     // pub fn split_off(&mut self, at: NonZeroUsize)
+
+    /// See [`resize_with`](alloc::vec::Vec::resize_with).
     pub fn resize_with<F>(&mut self, new_len: NonZeroUsize, f: F)
     where
         F: FnMut() -> T,
@@ -178,6 +215,9 @@ impl<T> Vec<T> {
         unsafe { self.as_mut_vec() }.resize_with(new_len.get(), f);
         self.check();
     }
+    /// Returns a [`NonEmpty`] slice.
+    ///
+    /// See [`leak`](alloc::vec::Vec::leak).
     pub fn leak<'a>(self) -> &'a mut Slice<T> {
         let inner = self.into_vec().leak();
         // Safety:
@@ -189,6 +229,7 @@ impl<T> Vec<T> {
     }
 }
 
+/// [`Vec`] to [`Slice`]
 impl<T> Deref for Vec<T> {
     type Target = Slice<T>;
 
@@ -197,6 +238,7 @@ impl<T> Deref for Vec<T> {
     }
 }
 
+/// [`Vec`] to [`Slice`]
 impl<T> DerefMut for Vec<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.as_mut_slice()

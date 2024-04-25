@@ -4,48 +4,9 @@ use core::{
     slice,
 };
 
-use crate::Slice;
+use crate::{NonEmpty, Slice};
 
-impl<T> Eq for Slice<T> where T: Eq {}
-
-/// Creation
-impl<T> Slice<T> {
-    crate::map_non_empty! {
-        const new(&[T]) -> &Self: Self::new_unchecked;
-        new_mut(&mut [T]) -> &mut Self: Self::new_mut_unchecked;
-    }
-    crate::transmuting! {
-        const new_unchecked(&[T]) -> &Self;
-        new_mut_unchecked(&mut [T]) -> &mut Self;
-    }
-    pub const fn of(item: &T) -> &Self {
-        let shared = slice::from_ref(item);
-        // Safety:
-        // - len is 1
-        unsafe { Self::new_unchecked(shared) }
-    }
-    pub fn of_mut(item: &mut T) -> &mut Self {
-        let shared = slice::from_mut(item);
-        // Safety:
-        // - len is 1
-        unsafe { Self::new_mut_unchecked(shared) }
-    }
-    const fn check(&self) {
-        debug_assert!(!self.inner.is_empty());
-    }
-}
-
-/// Gateway methods to core primitives
-impl<T> Slice<T> {
-    pub const fn as_slice(&self) -> &[T] {
-        self.check();
-        &self.inner
-    }
-    pub fn as_mut_slice(&mut self) -> &mut [T] {
-        self.check();
-        &mut self.inner
-    }
-}
+impl<T> Eq for NonEmpty<[T]> where T: Eq {}
 
 macro_rules! forward {
     ($($(#[$meta:meta])* pub const fn $ident:ident(&self) -> $ty:ty);* $(;)?) => {
@@ -78,25 +39,97 @@ macro_rules! forward_mut {
     }
 }
 
-/// Shimmed methods for std::primitive::slice
+/// [`Slice`] methods
 impl<T> Slice<T> {
+    ///////////
+    // Creation
+    ///////////
+
+    crate::map_non_empty! {
+        const
+        /// Create a new [`NonEmpty`] slice
+        new(&[T]) -> &Self: Self::new_unchecked;
+
+        /// Create a new [`NonEmpty`] slice
+        new_mut(&mut [T]) -> &mut Self: Self::new_mut_unchecked;
+    }
+    crate::transmuting! {
+        const
+        /// Create a new [`NonEmpty`] slice
+        new_unchecked(&[T]) -> &Self;
+
+        /// Create a new [`NonEmpty`] slice
+        new_mut_unchecked(&mut [T]) -> &mut Self;
+    }
+
+    ////////////
+    // Utilities
+    ////////////
+
+    /// Create a [`NonEmpty`] slice of a single element
+    pub const fn of(item: &T) -> &Self {
+        let shared = slice::from_ref(item);
+        // Safety:
+        // - len is 1
+        unsafe { Self::new_unchecked(shared) }
+    }
+    /// Create a [`NonEmpty`] slice of a single element
+    pub fn of_mut(item: &mut T) -> &mut Self {
+        let shared = slice::from_mut(item);
+        // Safety:
+        // - len is 1
+        unsafe { Self::new_mut_unchecked(shared) }
+    }
+    const fn check(&self) {
+        debug_assert!(!self.inner.is_empty());
+    }
+
+    ///////////////////
+    // Inner references
+    ///////////////////
+
+    /// Returns a [`primitive slice`](primitive@slice).
+    pub const fn as_slice(&self) -> &[T] {
+        self.check();
+        &self.inner
+    }
+    /// Returns a [`primitive slice`](primitive@slice).
+    pub fn as_mut_slice(&mut self) -> &mut [T] {
+        self.check();
+        &mut self.inner
+    }
+
+    //////////////////
+    // Shimmed methods
+    //////////////////
+
+    /// Returns the known non-zero length.
     pub const fn len(&self) -> NonZeroUsize {
         unsafe { crate::non_zero_usize(self.inner.len()) }
     }
     forward! {
+        /// Returns the first element, guaranteed.
         pub const fn first(&self) -> &T;
+        /// Returns the first element, guaranteed, and the rest of the elements.
         pub const fn split_first(&self) -> (&T, &[T]);
+        /// Returns the last element, guaranteed, and the rest of the elements.
         pub const fn split_last(&self) -> (&T, &[T]);
+        /// Returns the last element, guaranteed.
         pub const fn last(&self) -> &T;
     }
     forward_mut! {
+        /// Returns the first element, guaranteed.
         pub fn first_mut(&mut self) -> &mut T ;
+        /// Returns the first element, guaranteed, and the rest of the elements.
         pub fn split_first_mut(&mut self) -> (&mut T, &mut [T]);
+        /// Returns the last element, guaranteed, and the rest of the elements.
         pub fn split_last_mut(&mut self) -> (&mut T, &mut [T]);
+        /// Returns the last element, guaranteed.
         pub fn last_mut(&mut self) -> &mut T;
     }
 }
 
+/// [`Slice`] to [`primitive slice`](primitive@slice)
 impl<T> Deref for Slice<T> {
     type Target = [T];
 
@@ -105,6 +138,7 @@ impl<T> Deref for Slice<T> {
     }
 }
 
+/// [`Slice`] to [`primitive slice`](primitive@slice)
 impl<T> DerefMut for Slice<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.as_mut_slice()
