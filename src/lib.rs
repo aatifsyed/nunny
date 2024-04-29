@@ -106,11 +106,11 @@ pub struct NonEmpty<T: ?Sized> {
     inner: T,
 }
 
-/// Type alias to save keystrokes
+/// A non-empty [prim@array] of known size.
 pub type Array<T, const N: usize> = NonEmpty<[T; N]>;
-/// Type alias to save keystrokes
+/// A non-empty, dynamically sized [prim@slice].
 pub type Slice<T> = NonEmpty<[T]>;
-/// Type alias to save keystrokes
+/// A non-empty, heap allocated [Vec](alloc::vec::Vec).
 #[cfg(feature = "alloc")]
 #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
 pub type Vec<T> = NonEmpty<alloc::vec::Vec<T>>;
