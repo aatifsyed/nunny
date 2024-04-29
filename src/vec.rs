@@ -57,8 +57,8 @@ impl<T> Vec<T> {
     /// allocation if it was empty.
     pub fn new(src: alloc::vec::Vec<T>) -> Result<Self, alloc::vec::Vec<T>> {
         match src.is_empty() {
-            true => Ok(unsafe { Self::new_unchecked(src) }),
-            false => Err(src),
+            false => Ok(unsafe { Self::new_unchecked(src) }),
+            true => Err(src),
         }
     }
 
