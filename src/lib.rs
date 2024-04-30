@@ -142,8 +142,7 @@ macro_rules! slice {
 /// ```
 /// # use nunny::array;
 /// let mut arr = array!["hello", "world"];
-/// let slc = arr.as_mut_slice();
-/// *slc.first_mut() = "goodbye";
+/// *arr.first_mut() = "goodbye";
 /// assert_eq!(arr, ["goodbye", "world"])
 /// ```
 #[macro_export]
@@ -190,28 +189,42 @@ macro_rules! vec {
             $crate::Array::new_unchecked([$($el),*])
         })
     };
-    ($el:expr; $n:expr) => {{
-        const LEN: usize = {
-            let n = $n;
-            assert!(n != 0);
-            n
-        };
-        let el = $el;
-        let mut it = $crate::__private::alloc::vec::Vec::new();
-        it.resize(LEN, el);
-        // Safety:
-        // - const evaluated `LEN` to check it's nonzero
-        unsafe {
-            $crate::Vec::new_unchecked(it)
-        }
-    }}
+    ($el:expr; $n:expr) => {
+        $crate::Vec::filled($el, $crate::nonzero!($n))
+    }
+}
+
+/// Checks that an expression is non-zero _at compile time_.
+///
+/// Provided as a convenience for writing tests.
+///
+/// ```
+/// # use core::num::NonZeroUsize;
+/// # use nunny::nonzero;
+/// const NONZERO: NonZeroUsize = nonzero!(1);
+/// ```
+/// ```compile_fail
+/// # use core::num::NonZeroUsize;
+/// # use nunny::nonzero;
+/// const OOPS: NonZeroUsize = nonzero!(0);
+/// ```
+#[doc(hidden)]
+#[macro_export]
+macro_rules! nonzero {
+    ($expr:expr) => {{
+        const NONZERO: $crate::__private::core::num::NonZeroUsize =
+            match $crate::__private::core::num::NonZeroUsize::new($expr) {
+                $crate::__private::core::option::Option::Some(it) => it,
+                _ => $crate::__private::core::panic!("expression evaluated to zero"),
+            };
+        NONZERO
+    }};
 }
 
 /// Implementation detail, semver-exempt.
 #[doc(hidden)]
 pub mod __private {
-    #[cfg(feature = "alloc")]
-    pub extern crate alloc;
+    pub extern crate core;
 }
 
 /// Error returned in [`TryFrom`] implementations for reference conversions.

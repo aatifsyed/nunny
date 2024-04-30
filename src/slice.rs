@@ -139,6 +139,12 @@ impl<T> Slice<T> {
             inner: self.iter_mut(),
         }
     }
+
+    #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+    pub fn into_iter_ne(self: Box<Self>) -> NonEmpty<alloc::vec::IntoIter<T>> {
+        crate::Vec::from(self).into_iter_ne()
+    }
 }
 
 /// [`Slice`] to [`primitive slice`](primitive@slice)

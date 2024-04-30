@@ -1,6 +1,8 @@
 use core::{
     cmp::Ordering,
-    iter::{Chain, Cloned, Copied, Cycle, Enumerate, Fuse, Inspect, Map, Peekable, Rev, Take},
+    iter::{
+        Chain, Cloned, Copied, Cycle, Enumerate, FlatMap, Fuse, Inspect, Map, Peekable, Rev, Take,
+    },
     num::NonZeroUsize,
 };
 
@@ -26,12 +28,24 @@ impl<I> NonEmpty<I>
 where
     I: Iterator,
 {
+    /// Consume the [`NonEmpty`] iterator, returning the first element.
     pub fn first(mut self) -> I::Item {
         unwrap!(self.inner.next())
     }
+    /// Consume the [`NonEmpty`] iterator, returning the last element.
     pub fn last(self) -> I::Item {
         unwrap!(self.inner.last())
     }
+    /// Transform each item in the iterator, maintaining the [`NonEmpty`] invariant.
+    /// ```
+    /// # use nunny::{slice};
+    /// let before = slice![1, 2, 3];
+    /// let after = before.iter_ne().map(|it| *it * 2).collect_vec();
+    /// assert_eq!(
+    ///     after,
+    ///     [2, 4, 6]
+    /// )
+    /// ```
     pub fn map<B, F>(self, f: F) -> NonEmpty<Map<I, F>>
     where
         F: FnMut(I::Item) -> B,
@@ -40,6 +54,16 @@ where
             inner: self.inner.map(f),
         }
     }
+    /// Append another iterator to this one, maintaining the [`NonEmpty`] invariant.
+    /// ```
+    /// # use nunny::{vec};
+    /// let iter = vec![1, 2].into_iter_ne().chain([3]);
+    /// assert_eq!(
+    ///     iter.last(),
+    ///       // ^ the invariant is maintained, so we _know_ there's a last element
+    ///     3
+    /// )
+    /// ```
     pub fn chain<U>(self, other: U) -> NonEmpty<Chain<I, <U as IntoIterator>::IntoIter>>
     where
         U: IntoIterator<Item = I::Item>,
@@ -48,23 +72,73 @@ where
             inner: self.inner.chain(other),
         }
     }
+    /// Return an `(ix, T)` tuple for each `T`, maintaining the [`NonEmpty`] invariant.
+    /// ```
+    /// # use nunny::{vec};
+    /// let v = vec!['a', 'b'];
+    /// assert_eq!(
+    ///     v.iter_ne().enumerate().last(),
+    ///                          // ^ the invariant is maintained
+    ///                          //   so we _know_ there's a last element
+    ///     (1, &'b')
+    /// )
+    /// ```
     pub fn enumerate(self) -> NonEmpty<Enumerate<I>> {
         NonEmpty {
             inner: self.inner.enumerate(),
         }
     }
+    /// Return a [`peek`](Self::peek)-able iterator, maintaining the [`NonEmpty`] invariant.
+    /// ```
+    /// # use nunny::{vec};
+    /// let v = vec!['a', 'b'];
+    /// let mut peek_me = v.into_iter_ne().peekable();
+    /// assert_eq!(
+    ///     *peek_me.peek(),
+    ///     'a'
+    /// );
+    /// *peek_me.peek_mut() = 'b';
+    /// assert_eq!(
+    ///     peek_me.collect_vec(),
+    ///     ['b', 'b']
+    /// )
+    /// ```
     pub fn peekable(self) -> NonEmpty<Peekable<I>> {
         NonEmpty {
             inner: self.inner.peekable(),
         }
     }
+    /// Take at most `n` items from this iterator.
+    ///
+    /// Note that `n` cannot be zero, to maintain the [`NonEmpty`] invariant.
+    ///
+    /// ```
+    /// # use nunny::{vec, nonzero};
+    /// assert_eq!(
+    ///     vec![1, 2, 3].into_iter_ne().take(nonzero!(1)).collect_vec(),
+    ///                                    // ^ compile-time checked
+    ///     [1]
+    /// )
+    /// ```
     pub fn take(self, n: NonZeroUsize) -> NonEmpty<Take<I>> {
         NonEmpty {
             inner: self.inner.take(n.get()),
         }
     }
     // pub fn flat_map
-    // pub fn flatten
+    #[allow(clippy::type_complexity)]
+    pub fn flatten<II, T>(self) -> NonEmpty<FlatMap<I, II, fn(I::Item) -> II>>
+    where
+        I: Iterator<Item = NonEmpty<II>>,
+        //                 ^ each item is nonempty
+        II: IntoIterator<Item = T>,
+        // TODO(aatifsyed): a trait NonEmptyIterator would make this more ergonomic
+    {
+        NonEmpty {
+            inner: self.inner.flat_map(|it| it.inner),
+        }
+    }
+
     pub fn fuse(self) -> NonEmpty<Fuse<I>> {
         NonEmpty {
             inner: self.inner.fuse(),
@@ -198,9 +272,15 @@ impl<I> NonEmpty<Peekable<I>>
 where
     I: Iterator,
 {
+    /// Peek this [`NonEmpty`] iterator, without advancing it.
+    ///
+    /// See [`Self::peekable`].
     pub fn peek(&mut self) -> &I::Item {
         unwrap!(self.inner.peek())
     }
+    /// Peek and modify this [`NonEmpty`] iterator, without advancing it.
+    ///
+    /// See [`Self::peekable`].
     pub fn peek_mut(&mut self) -> &mut I::Item {
         unwrap!(self.inner.peek_mut())
     }
