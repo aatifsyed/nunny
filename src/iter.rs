@@ -8,24 +8,6 @@ use core::{
 
 use crate::NonEmpty;
 
-/// Return an [`Iterator`] that is guaranteed to yield at least one element.
-///
-/// Inherent methods on [`NonEmpty<impl Iterator>`] can then rely on that invariant.
-pub trait IntoNonEmptyIterator: IntoIterator {
-    // type Item;
-    // type IntoIter: Iterator<Item = Self::Item>;
-    fn into_iter_ne(self) -> NonEmpty<Self::IntoIter>;
-}
-
-impl<I> IntoNonEmptyIterator<I> for NonEmpty<I>
-where
-    I: Iterator,
-{
-    fn into_iter_ne(self) -> NonEmpty<Self::IntoIter> {
-        self
-    }
-}
-
 macro_rules! unwrap {
     ($expr:expr) => {
         match $expr {
@@ -147,12 +129,14 @@ where
     #[allow(clippy::type_complexity)]
     pub fn flatten<II, T>(self) -> NonEmpty<FlatMap<I, II, fn(I::Item) -> II>>
     where
-        I::Item: IntoNonEmptyIterator,
+        I: Iterator<Item = NonEmpty<II>>,
         //                 ^ each item is nonempty
         II: IntoIterator<Item = T>,
         // TODO(aatifsyed): a trait NonEmptyIterator would make this more ergonomic
     {
-        todo!()
+        NonEmpty {
+            inner: self.inner.flat_map(|it| it.inner),
+        }
     }
 
     pub fn fuse(self) -> NonEmpty<Fuse<I>> {
