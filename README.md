@@ -41,6 +41,19 @@ Extensive feature gating supporting:
 - full-`std`-enabled environments.
 - interaction with crates like `serde` and `arbitrary`.
 
+Iterator support:
+  Specialized [`Iterator`] methods remove branches to handle empty iterators,
+  _and_ preserve invariants even when chaining combinators.
+  ```rust
+  let v = vec![1, 2, 3];
+  let _: Option<&u8> = v.iter().last();
+      // ^ normally you have to handle the empty case
+  let _: &u8 = v.iter_ne().last();
+      // ^ but we know there is at least one element
+  let _: u8 = v.iter_ne().copied().last();
+                       // ^ using this combinator preserves the invariant
+  ```
+
 Thoughtful design:
 - [`NonZeroUsize`] is inserted [where](Slice::len) [appropriate](Vec::truncate).
 - Everything [`Deref`](core::ops::Deref)/[`DerefMut`](core::ops::DerefMut)s
