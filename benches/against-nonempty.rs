@@ -2,69 +2,103 @@ use std::hint::black_box;
 
 use divan::Bencher;
 
-type Ours = nunny::Vec<u8>;
-type Theirs = nonempty::NonEmpty<u8>;
-
 const LENS: &[usize] = &[1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
 
-#[divan::bench(types = [Ours, Theirs], args = LENS)]
-fn clone<T: BenchMe>(bencher: Bencher, len: usize) {
-    let bench_me = black_box(T::new(vec![0; len]));
-    bencher.bench_local(move || black_box(bench_me.clone()));
+#[divan::bench(types = [Ours<String>, Theirs<String>, Ours<u8>, Theirs<u8>], args = LENS)]
+fn clone<B: BenchMe>(bencher: Bencher, len: usize)
+where
+    B::Subject: Clone,
+{
+    let bench_me = black_box(B::setup(len));
+    bencher.bench_local(move || B::run_clone(&bench_me));
 }
 
-#[divan::bench(types = [Ours, Theirs], args = LENS)]
-fn into_iter<T: BenchMe>(bencher: Bencher, len: usize) {
-    let bench_me = black_box(T::new(vec![0; len]));
-    bencher.bench_local(move || {
-        for item in bench_me.clone() {
-            black_box(item);
-        }
-    });
+#[divan::bench(types = [Ours<String>, Theirs<String>, Ours<u8>, Theirs<u8>], args = LENS)]
+fn into_iter<B: BenchMe>(bencher: Bencher, len: usize)
+where
+    B::Subject: Clone + IntoIterator,
+{
+    let bench_me = black_box(B::setup(len));
+    bencher.bench_local(move || B::run_into_iter(&bench_me));
+}
+#[divan::bench(types = [Ours<String>, Theirs<String>, Ours<u8>, Theirs<u8>], args = LENS)]
+fn iter<B: BenchMe>(bencher: Bencher, len: usize)
+where
+    for<'a> &'a B::Subject: IntoIterator,
+{
+    let bench_me = black_box(B::setup(len));
+    bencher.bench_local(move || B::run_iter(&bench_me));
+}
+#[divan::bench(types = [Ours<String>, Theirs<String>, Ours<u8>, Theirs<u8>], args = LENS)]
+fn partial_eq<B: BenchMe>(bencher: Bencher, len: usize)
+where
+    B::Subject: PartialEq,
+{
+    let left = black_box(B::setup(len));
+    let right = black_box(B::setup(len));
+    bencher.bench_local(move || B::run_partial_eq(&left, &right));
 }
 
-#[divan::bench(types = [Ours, Theirs], args = LENS)]
-fn iter<T: BenchMe>(bencher: Bencher, len: usize) {
-    let bench_me = black_box(T::new(vec![0; len]));
-    bencher.bench_local(|| {
-        for item in bench_me.iter() {
-            black_box(item);
-        }
-    })
-}
-
-#[divan::bench(types = [Ours, Theirs], args = LENS)]
-fn partial_eq<T: BenchMe>(bencher: Bencher, len: usize) {
-    let left = black_box(T::new(vec![0; len]));
-    let right = black_box(T::new(vec![0; len]));
-    bencher.bench_local(|| black_box(left == right))
-}
-
-trait BenchMe: IntoIterator<Item = u8> + Clone + PartialEq {
-    fn new(raw: Vec<u8>) -> Self;
-    fn iter(&self) -> impl Iterator<Item = &u8>;
-}
-
-impl BenchMe for Ours {
-    fn new(raw: Vec<u8>) -> Self {
-        Self::new(raw).unwrap()
+struct Ours<T>(std::marker::PhantomData<fn() -> T>);
+struct Theirs<T>(std::marker::PhantomData<fn() -> T>);
+trait BenchMe {
+    type Subject;
+    fn setup(len: usize) -> Self::Subject;
+    fn run_clone(subject: &Self::Subject)
+    where
+        Self::Subject: Clone,
+    {
+        black_box(subject.clone());
     }
-
-    fn iter(&self) -> impl Iterator<Item = &u8> {
-        self.as_slice_ne().iter()
+    fn run_into_iter(subject: &Self::Subject)
+    where
+        Self::Subject: IntoIterator + Clone,
+    {
+        for it in black_box(subject.clone()) {
+            black_box(it);
+        }
+    }
+    fn run_iter(subject: &Self::Subject)
+    where
+        for<'a> &'a Self::Subject: IntoIterator,
+    {
+        for it in black_box(subject) {
+            black_box(it);
+        }
+    }
+    fn run_partial_eq(left: &Self::Subject, right: &Self::Subject)
+    where
+        Self::Subject: PartialEq,
+    {
+        black_box(black_box(left) == black_box(right));
     }
 }
 
-impl BenchMe for Theirs {
-    fn new(mut raw: Vec<u8>) -> Self {
-        Self {
-            head: raw.remove(0),
-            tail: raw,
-        }
-    }
+impl<T> BenchMe for Ours<T>
+where
+    T: Default,
+{
+    type Subject = nunny::Vec<T>;
 
-    fn iter(&self) -> impl Iterator<Item = &u8> {
-        Theirs::iter(self)
+    fn setup(len: usize) -> Self::Subject {
+        let mut src = Vec::new();
+        src.resize_with(len, Default::default);
+        black_box(match nunny::Vec::new(src) {
+            Ok(it) => it,
+            Err(_) => panic!(),
+        })
+    }
+}
+impl<T> BenchMe for Theirs<T>
+where
+    T: Default,
+{
+    type Subject = nonempty::NonEmpty<T>;
+
+    fn setup(len: usize) -> Self::Subject {
+        let mut src = Vec::new();
+        src.resize_with(len, Default::default);
+        black_box(nonempty::NonEmpty::from_vec(src).unwrap())
     }
 }
 
