@@ -51,6 +51,14 @@ schemars08 = { version = "0.8.16", package = "schemars", optional = true, defaul
 [workspace]
 members = ["gen"]
 
+[dev-dependencies]
+divan = { git = "https://github.com/OliverKillane/divan", branch = "enh/file-output" } # json output
+nonempty = "0.10.0"
+
+[[bench]]
+name = "against-nonempty"
+harness = false
+
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "do_doc_cfg"]
