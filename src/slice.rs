@@ -142,7 +142,7 @@ impl<T> Slice<T> {
 
     #[cfg(feature = "alloc")]
     #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
-    pub fn into_iter_ne(self: Box<Self>) -> NonEmpty<alloc::vec::IntoIter<T>> {
+    pub fn into_iter_ne(self: alloc::boxed::Box<Self>) -> NonEmpty<alloc::vec::IntoIter<T>> {
         crate::Vec::from(self).into_iter_ne()
     }
 }

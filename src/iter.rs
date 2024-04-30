@@ -28,23 +28,40 @@ impl<I> NonEmpty<I>
 where
     I: Iterator,
 {
-    /// Consume the [`NonEmpty`] iterator, returning the first element.
+    /// [`NonEmpty`] version of [`Iterator::next`].
+    /// ```
+    /// # use nunny::{vec};
+    /// let v = vec![1, 2, 3];
+    /// let _: Option<&u8> = v.iter().next();
+    ///     // ^ normally you have to handle the empty case
+    /// let _: &u8 = v.iter_ne().first();
+    ///     // ^ but we know there is at least one element
+    /// ```
     pub fn first(mut self) -> I::Item {
         unwrap!(self.inner.next())
     }
-    /// Consume the [`NonEmpty`] iterator, returning the last element.
+    /// [`NonEmpty`] version of [`Iterator::last`].
+    /// ```
+    /// # use nunny::{vec};
+    /// let v = vec![1, 2, 3];
+    /// let _: Option<&u8> = v.iter().last();
+    ///     // ^ normally you have to handle the empty case
+    /// let _: &u8 = v.iter_ne().last();
+    ///     // ^ but we know there is at least one element
+    /// ```
     pub fn last(self) -> I::Item {
         unwrap!(self.inner.last())
     }
-    /// Transform each item in the iterator, maintaining the [`NonEmpty`] invariant.
+    /// [`NonEmpty`] version of [`Iterator::map`].
     /// ```
     /// # use nunny::{slice};
-    /// let before = slice![1, 2, 3];
-    /// let after = before.iter_ne().map(|it| *it * 2).collect_vec();
+    /// let iter = slice![1, 2, 3].iter_ne();
     /// assert_eq!(
-    ///     after,
-    ///     [2, 4, 6]
-    /// )
+    ///     iter.map(|it| *it * 2).last(),
+    ///                         // ^ the invariant is maintained
+    ///                         //   so we _know_ there's a last element
+    ///     6
+    /// );
     /// ```
     pub fn map<B, F>(self, f: F) -> NonEmpty<Map<I, F>>
     where
@@ -54,15 +71,16 @@ where
             inner: self.inner.map(f),
         }
     }
-    /// Append another iterator to this one, maintaining the [`NonEmpty`] invariant.
+    /// [`NonEmpty`] version of [`Iterator::chain`].
     /// ```
-    /// # use nunny::{vec};
-    /// let iter = vec![1, 2].into_iter_ne().chain([3]);
+    /// # use nunny::{slice};
+    /// let iter = slice![1, 2].iter_ne();
     /// assert_eq!(
-    ///     iter.last(),
-    ///       // ^ the invariant is maintained, so we _know_ there's a last element
-    ///     3
-    /// )
+    ///     iter.chain(&[3]).last(),
+    ///                   // ^ the invariant is maintained
+    ///                   //   so we _know_ there's a last element
+    ///     &3
+    /// );
     /// ```
     pub fn chain<U>(self, other: U) -> NonEmpty<Chain<I, <U as IntoIterator>::IntoIter>>
     where
@@ -72,27 +90,27 @@ where
             inner: self.inner.chain(other),
         }
     }
-    /// Return an `(ix, T)` tuple for each `T`, maintaining the [`NonEmpty`] invariant.
+    /// [`NonEmpty`] version of [`Iterator::enumerate`].
     /// ```
-    /// # use nunny::{vec};
-    /// let v = vec!['a', 'b'];
+    /// # use nunny::{slice};
+    /// let iter = slice!['a', 'b'].iter_ne();
     /// assert_eq!(
-    ///     v.iter_ne().enumerate().last(),
-    ///                          // ^ the invariant is maintained
-    ///                          //   so we _know_ there's a last element
+    ///     iter.enumerate().last(),
+    ///                  // ^ the invariant is maintained
+    ///                  //   so we _know_ there's a last element
     ///     (1, &'b')
-    /// )
+    /// );
     /// ```
     pub fn enumerate(self) -> NonEmpty<Enumerate<I>> {
         NonEmpty {
             inner: self.inner.enumerate(),
         }
     }
-    /// Return a [`peek`](Self::peek)-able iterator, maintaining the [`NonEmpty`] invariant.
+    /// [`NonEmpty`] version of [`Iterator::peekable`], allowing you to use
+    /// [`Self::peek`] and [`Self::peek_mut`]
     /// ```
-    /// # use nunny::{vec};
-    /// let v = vec!['a', 'b'];
-    /// let mut peek_me = v.into_iter_ne().peekable();
+    /// # use nunny::{vec, NonEmpty};
+    /// let mut peek_me = vec!['a', 'b'].into_iter_ne().peekable();
     /// assert_eq!(
     ///     *peek_me.peek(),
     ///     'a'
@@ -101,23 +119,24 @@ where
     /// assert_eq!(
     ///     peek_me.collect_vec(),
     ///     ['b', 'b']
-    /// )
+    /// );
     /// ```
     pub fn peekable(self) -> NonEmpty<Peekable<I>> {
         NonEmpty {
             inner: self.inner.peekable(),
         }
     }
-    /// Take at most `n` items from this iterator.
+    /// [`NonEmpty`] version of [`Iterator::take`].
     ///
     /// Note that `n` cannot be zero, to maintain the [`NonEmpty`] invariant.
     ///
     /// ```
-    /// # use nunny::{vec, nonzero};
+    /// # use nunny::{slice, nonzero};
+    /// let iter = slice!['a', 'b'].iter_ne();
     /// assert_eq!(
-    ///     vec![1, 2, 3].into_iter_ne().take(nonzero!(1)).collect_vec(),
-    ///                                    // ^ compile-time checked
-    ///     [1]
+    ///     iter.take(nonzero!(1)).last(),
+    ///            // ^ compile time checked
+    ///     &'a'
     /// )
     /// ```
     pub fn take(self, n: NonZeroUsize) -> NonEmpty<Take<I>> {
@@ -126,6 +145,17 @@ where
         }
     }
     // pub fn flat_map
+    /// [`NonEmpty`] version of [`Iterator::flatten`].
+    ///
+    /// Note that the inner items must also be [`NonEmpty`], to maintain the invariant.
+    /// ```
+    /// use nunny::{vec};
+    /// let nested = vec![vec![1], vec![2, 3]];
+    /// assert_eq!(
+    ///     nested.into_iter_ne().flatten().collect_vec(),
+    ///     [1, 2, 3],
+    /// );
+    /// ```
     #[allow(clippy::type_complexity)]
     pub fn flatten<II, T>(self) -> NonEmpty<FlatMap<I, II, fn(I::Item) -> II>>
     where
@@ -133,17 +163,19 @@ where
         //                 ^ each item is nonempty
         II: IntoIterator<Item = T>,
         // TODO(aatifsyed): a trait NonEmptyIterator would make this more ergonomic
+        //                  See commit history for an attempt
     {
         NonEmpty {
             inner: self.inner.flat_map(|it| it.inner),
         }
     }
-
+    /// [`NonEmpty`] version of [`Iterator::fuse`].
     pub fn fuse(self) -> NonEmpty<Fuse<I>> {
         NonEmpty {
             inner: self.inner.fuse(),
         }
     }
+    /// [`NonEmpty`] version of [`Iterator::inspect`].
     pub fn inspect<F>(self, f: F) -> NonEmpty<Inspect<I, F>>
     where
         F: FnMut(&I::Item),
@@ -152,24 +184,53 @@ where
             inner: self.inner.inspect(f),
         }
     }
+    /// [`NonEmpty`] version of [`Iterator::reduce`].
+    /// ```
+    /// # use nunny::{vec};
+    /// # use core::cmp::min;
+    /// let v = vec![1, 2, 3];
+    /// let _: Option<&u8> = v.iter().reduce(min);
+    ///     // ^ normally you have to handle the empty case
+    /// let _: &u8 = v.iter_ne().reduce(min);
+    ///     // ^ but we know there is at least one element
+    /// ```
     pub fn reduce<F>(self, f: F) -> I::Item
     where
         F: FnMut(I::Item, I::Item) -> I::Item,
     {
         unwrap!(self.inner.reduce(f))
     }
+    /// [`NonEmpty`] version of [`Iterator::max`].
+    /// ```
+    /// # use nunny::{vec};
+    /// let v = vec![1, 2, 3];
+    /// let _: Option<&u8> = v.iter().max();
+    ///     // ^ normally you have to handle the empty case
+    /// let _: &u8 = v.iter_ne().max();
+    ///     // ^ but we know there is at least one element
+    /// ```
     pub fn max(self) -> I::Item
     where
         I::Item: Ord,
     {
         unwrap!(self.inner.max())
     }
+    /// [`NonEmpty`] version of [`Iterator::min`].
+    /// ```
+    /// # use nunny::{vec};
+    /// let v = vec![1, 2, 3];
+    /// let _: Option<&u8> = v.iter().min();
+    ///     // ^ normally you have to handle the empty case
+    /// let _: &u8 = v.iter_ne().min();
+    ///     // ^ but we know there is at least one element
+    /// ```
     pub fn min(self) -> I::Item
     where
         I::Item: Ord,
     {
         unwrap!(self.inner.min())
     }
+    /// [`NonEmpty`] version of [`Iterator::max_by_key`].
     pub fn max_by_key<B, F>(self, f: F) -> I::Item
     where
         B: Ord,
@@ -177,12 +238,14 @@ where
     {
         unwrap!(self.inner.max_by_key(f))
     }
+    /// [`NonEmpty`] version of [`Iterator::max_by`].
     pub fn max_by<F>(self, compare: F) -> I::Item
     where
         F: FnMut(&I::Item, &I::Item) -> Ordering,
     {
         unwrap!(self.inner.max_by(compare))
     }
+    /// [`NonEmpty`] version of [`Iterator::min_by_key`].
     pub fn min_by_key<B, F>(self, f: F) -> I::Item
     where
         B: Ord,
@@ -190,12 +253,14 @@ where
     {
         unwrap!(self.inner.min_by_key(f))
     }
+    /// [`NonEmpty`] version of [`Iterator::min_by`].
     pub fn min_by<F>(self, compare: F) -> I::Item
     where
         F: FnMut(&I::Item, &I::Item) -> Ordering,
     {
         unwrap!(self.inner.min_by(compare))
     }
+    /// [`NonEmpty`] version of [`Iterator::rev`].
     pub fn rev(self) -> NonEmpty<Rev<I>>
     where
         I: DoubleEndedIterator,
@@ -204,7 +269,11 @@ where
             inner: self.inner.rev(),
         }
     }
-    pub fn unzip_vec<A, B>(self) -> (NonEmpty<Vec<A>>, NonEmpty<Vec<B>>)
+
+    /// [`NonEmpty`] version of [`Iterator::unzip`].
+    #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+    pub fn unzip_vec<A, B>(self) -> (crate::Vec<A>, crate::Vec<B>)
     where
         I: Iterator<Item = (A, B)>,
     {
@@ -215,6 +284,7 @@ where
         //   (so it always has one element)
         unsafe { (crate::Vec::new_unchecked(a), crate::Vec::new_unchecked(b)) }
     }
+    /// [`NonEmpty`] version of [`Iterator::copied`].
     pub fn copied<'a, T>(self) -> NonEmpty<Copied<I>>
     where
         T: 'a + Copy,
@@ -224,6 +294,7 @@ where
             inner: self.inner.copied(),
         }
     }
+    /// [`NonEmpty`] version of [`Iterator::cloned`].
     pub fn cloned<'a, T>(self) -> NonEmpty<Cloned<I>>
     where
         T: 'a + Clone,
@@ -233,6 +304,7 @@ where
             inner: self.inner.cloned(),
         }
     }
+    /// [`NonEmpty`] version of [`Iterator::cycle`].
     pub fn cycle(self) -> NonEmpty<Cycle<I>>
     where
         I: Clone,
@@ -241,19 +313,27 @@ where
             inner: self.inner.cycle(),
         }
     }
+    /// Remove the [`NonEmpty`] wrapper, allowing you to access normal iterator
+    /// methods like [`Iterator::filter`].
     #[doc(alias = "into_iter")]
     #[doc(alias = "into_inner")]
     pub fn relax(self) -> I {
         self.inner
     }
-    pub fn collect_vec(self) -> NonEmpty<Vec<I::Item>> {
+    /// Collect this iterator into a [`NonEmpty<Vec>`].
+    #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+    pub fn collect_vec(self) -> crate::Vec<I::Item> {
         // Safety:
         // - NonEmpty<impl Iterator> is only constructed from known NonEmpty items
         // - NonEmpty<impl Iterator> does not allow mutable access to the inner iterator
         //   (so it always has one element)
         unsafe { crate::Vec::new_unchecked(self.inner.collect()) }
     }
-    pub fn try_collect_vec<T, E>(self) -> Result<NonEmpty<Vec<T>>, E>
+    /// Collect [`Ok`] items into a [`NonEmpty<Vec>`], short-circuiting on [`Err`].
+    #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+    pub fn try_collect_vec<T, E>(self) -> Result<crate::Vec<T>, E>
     where
         I: Iterator<Item = Result<T, E>>,
     {
