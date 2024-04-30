@@ -104,7 +104,7 @@ impl<T> Slice<T> {
     //////////////////
 
     /// Returns the known non-zero length.
-    pub const fn len_nonzero(&self) -> NonZeroUsize {
+    pub const fn len_ne(&self) -> NonZeroUsize {
         unsafe { crate::non_zero_usize(self.inner.len()) }
     }
     forward! {

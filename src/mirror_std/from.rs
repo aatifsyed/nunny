@@ -84,7 +84,7 @@ where
     T: Clone,
 {
     fn from(value: &'a Array<T, N>) -> Self {
-        Cow::Borrowed(value.as_slice())
+        Cow::Borrowed(value.as_slice_ne())
     }
 }
 
@@ -240,7 +240,7 @@ where
     T: Clone,
 {
     fn from(value: &Array<T, N>) -> Self {
-        value.as_slice().into()
+        value.as_slice_ne().into()
     }
 }
 
@@ -251,7 +251,7 @@ where
     T: Clone,
 {
     fn from(value: &mut Array<T, N>) -> Self {
-        value.as_slice().into()
+        value.as_slice_ne().into()
     }
 }
 

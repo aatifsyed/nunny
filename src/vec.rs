@@ -148,11 +148,11 @@ impl<T> Vec<T> {
         inner
     }
     /// Returns a [`NonEmpty`] slice.
-    pub fn as_slice(&self) -> &Slice<T> {
+    pub fn as_slice_ne(&self) -> &Slice<T> {
         unsafe { Slice::new_unchecked(self.as_vec()) }
     }
     /// Returns a [`NonEmpty`] slice.
-    pub fn as_mut_slice(&mut self) -> &mut Slice<T> {
+    pub fn as_mut_slice_ne(&mut self) -> &mut Slice<T> {
         unsafe { Slice::new_mut_unchecked(self.as_mut_vec()) }
     }
 
@@ -185,7 +185,7 @@ impl<T> Vec<T> {
                 // Safety:
                 // - #[repr(transparent)]
                 let dst = unsafe { Box::from_raw(ptr as *mut Slice<T>) };
-                let len1 = dst.len_nonzero().get();
+                let len1 = dst.len_ne().get();
                 assert_eq!(len0, len1);
                 dst
             }
@@ -278,14 +278,14 @@ impl<T> Deref for Vec<T> {
     type Target = Slice<T>;
 
     fn deref(&self) -> &Self::Target {
-        self.as_slice()
+        self.as_slice_ne()
     }
 }
 
 /// [`Vec`] to [`Slice`]
 impl<T> DerefMut for Vec<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.as_mut_slice()
+        self.as_mut_slice_ne()
     }
 }
 

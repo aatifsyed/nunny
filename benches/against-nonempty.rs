@@ -51,7 +51,7 @@ impl BenchMe for Ours {
     }
 
     fn iter(&self) -> impl Iterator<Item = &u8> {
-        self.as_slice().iter()
+        self.as_slice_ne().iter()
     }
 }
 

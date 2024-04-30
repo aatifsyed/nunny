@@ -75,14 +75,14 @@ impl<const N: usize, T> Array<T, N> {
     ///////////////////
 
     /// Returns a [`NonEmpty`] slice.
-    pub const fn as_slice(&self) -> &Slice<T> {
+    pub const fn as_slice_ne(&self) -> &Slice<T> {
         let src = self.inner.as_slice();
         // Safety
         // - src is not empty by construction
         unsafe { Slice::new_unchecked(src) }
     }
     /// Returns a [`NonEmpty`] slice.
-    pub fn as_mut_slice(&mut self) -> &mut Slice<T> {
+    pub fn as_mut_slice_ne(&mut self) -> &mut Slice<T> {
         let src = self.inner.as_mut_slice();
         // Safety
         // - src is not empty by construction
@@ -127,13 +127,13 @@ impl<const N: usize, T> Deref for Array<T, N> {
     type Target = Slice<T>;
 
     fn deref(&self) -> &Self::Target {
-        self.as_slice()
+        self.as_slice_ne()
     }
 }
 /// [`Array`] to [`Slice`]
 impl<const N: usize, T> DerefMut for Array<T, N> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.as_mut_slice()
+        self.as_mut_slice_ne()
     }
 }
 

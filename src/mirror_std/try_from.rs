@@ -109,7 +109,7 @@ impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<T, N>> {
     fn try_from(value: Box<Slice<T>>) -> Result<Self, Self::Error> {
         // Safety:
         // - already checked len
-        match value.len_nonzero().get() == N {
+        match value.len_ne().get() == N {
             true => Ok(unsafe { boxed_slice_as_array_unchecked(value) }),
             false => Err(value),
         }
