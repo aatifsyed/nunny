@@ -59,7 +59,7 @@
 //!   ```
 //!
 //! Thoughtful design:
-//! - [`NonZeroUsize`] is inserted [where](Slice::len) [appropriate](Vec::truncate).
+//! - [`NonZeroUsize`] is inserted [where](Slice::len_ne) [appropriate](Vec::truncate).
 //! - Everything [`Deref`](core::ops::Deref)/[`DerefMut`](core::ops::DerefMut)s
 //!   down to a [`NonEmpty<Slice<T>>`], which in turn `deref/mut`s down to a `[T]`.
 //! - Liberal applications of [`cmp`](core::cmp), [`borrow`](core::borrow), [`convert`](core::convert)
