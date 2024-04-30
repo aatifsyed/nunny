@@ -1,6 +1,6 @@
 [package]
 name = "nunny"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "the definitive non-empty slice/array/vec library for Rust"
 license = "MIT OR Apache-2.0"
