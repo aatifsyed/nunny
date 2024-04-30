@@ -79,6 +79,22 @@ impl<T> Vec<T> {
         // - pushing the element succeeded
         unsafe { Self::new_unchecked(inner) }
     }
+    /// Creating a [`NonEmpty`] heap-allocated vec where the first element is known.
+    ///
+    /// This is an convenience method, equivalent to
+    /// ```
+    /// let mut it = nunny::vec!["first"];
+    /// it.extend(["this", "is", "the", "rest"]);
+    /// ```
+    pub fn of_extending<A>(first: T, rest: impl IntoIterator<Item = A>) -> Self
+    where
+        Self: Extend<A>,
+    {
+        let rest = rest.into_iter();
+        let mut this = Self::of_with_capacity(first, rest.size_hint().0);
+        this.extend(rest);
+        this
+    }
 
     /// Create a [`NonEmpty`] heap-allocated vec with `len` items, filled with
     /// [`Clone`]s of the given `value`.
