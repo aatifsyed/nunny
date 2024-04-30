@@ -171,6 +171,13 @@ impl<const N: usize, T> IntoIterator for Array<T, N> {
         self.into_array().into_iter()
     }
 }
+impl<const N: usize, T> crate::iter::IntoNonEmptyIterator for Array<T, N> {
+    fn into_iter_ne(self) -> NonEmpty<Self::IntoIter> {
+        NonEmpty {
+            inner: self.into_iter(),
+        }
+    }
+}
 
 mod partial_eq_std {
     use super::*;

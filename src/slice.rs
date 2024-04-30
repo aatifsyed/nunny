@@ -129,21 +129,63 @@ impl<T> Slice<T> {
     }
 }
 
-/// Known non-empty iterators for [`Slice`].
-impl<T> Slice<T> {
-    pub fn iter_ne(&self) -> NonEmpty<core::slice::Iter<T>> {
-        NonEmpty { inner: self.iter() }
+mod iter_ne {
+    use super::*;
+    use crate::iter::IntoNonEmptyIterator;
+
+    crate::slice_iter! {
+        <T> for Slice<T>
     }
-    pub fn iter_mut_ne(&mut self) -> NonEmpty<core::slice::IterMut<'_, T>> {
-        NonEmpty {
-            inner: self.iter_mut(),
+
+    impl<'a, T> IntoNonEmptyIterator for &'a Slice<T> {
+        fn into_iter_ne(self) -> NonEmpty<Self::IntoIter> {
+            NonEmpty { inner: self.iter() }
+        }
+    }
+    impl<'a, T> IntoNonEmptyIterator for &'a mut Slice<T> {
+        fn into_iter_ne(self) -> NonEmpty<Self::IntoIter> {
+            NonEmpty {
+                inner: self.iter_mut(),
+            }
         }
     }
 
     #[cfg(feature = "alloc")]
     #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
-    pub fn into_iter_ne(self: Box<Self>) -> NonEmpty<alloc::vec::IntoIter<T>> {
-        crate::Vec::from(self).into_iter_ne()
+    impl<T> IntoNonEmptyIterator for alloc::boxed::Box<Slice<T>> {
+        fn into_iter_ne(self) -> NonEmpty<Self::IntoIter> {
+            NonEmpty {
+                inner: self.into_iter(),
+            }
+        }
+    }
+
+    #[cfg(feature = "alloc")]
+    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+    impl<T> IntoIterator for alloc::boxed::Box<Slice<T>> {
+        type Item = T;
+
+        type IntoIter = alloc::vec::IntoIter<T>;
+
+        fn into_iter(self) -> Self::IntoIter {
+            crate::Vec::<T>::from(self).into_iter()
+        }
+    }
+
+    /// Known non-empty iterators for [`Slice`].
+    impl<T> Slice<T> {
+        pub fn iter_ne(&self) -> NonEmpty<core::slice::Iter<T>> {
+            self.into_iter_ne()
+        }
+        pub fn iter_mut_ne(&mut self) -> NonEmpty<core::slice::IterMut<'_, T>> {
+            self.into_iter_ne()
+        }
+
+        #[cfg(feature = "alloc")]
+        #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+        pub fn into_iter_ne(self: Box<Self>) -> NonEmpty<alloc::vec::IntoIter<T>> {
+            crate::Vec::from(self).into_iter_ne()
+        }
     }
 }
 
@@ -170,22 +212,6 @@ crate::as_ref_as_mut! {
 
 crate::borrow_borrow_mut! {
     <T> for Slice<T> as [T];
-}
-
-crate::slice_iter! {
-    <T> for Slice<T>
-}
-
-#[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
-impl<T> IntoIterator for alloc::boxed::Box<Slice<T>> {
-    type Item = T;
-
-    type IntoIter = alloc::vec::IntoIter<T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        crate::Vec::<T>::from(self).into_iter()
-    }
 }
 
 #[cfg(feature = "alloc")]
