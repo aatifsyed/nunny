@@ -61,7 +61,8 @@ impl<const N: usize, T> Array<T, N> {
         }
     }
     /// Returns a [`NonEmpty`] array of the same size as self, with function f applied to each element in order.
-    pub fn map<F, U>(self, f: F) -> Array<U, N>
+    #[doc(alias = "map")] // [`<[T; N]>::map`](https://doc.rust-lang.org/std/primitive.array.html#method.map)
+    pub fn each_map<F, U>(self, f: F) -> Array<U, N>
     where
         F: FnMut(T) -> U,
     {
@@ -100,6 +101,15 @@ impl<const N: usize, T> Array<T, N> {
     pub fn into_array(self) -> [T; N] {
         let Self { inner } = self;
         inner
+    }
+}
+
+/// Known non-empty iterator for [`Array`].
+impl<T, const N: usize> Array<T, N> {
+    pub fn into_iter_ne(self) -> NonEmpty<core::array::IntoIter<T, N>> {
+        NonEmpty {
+            inner: self.into_iter(),
+        }
     }
 }
 

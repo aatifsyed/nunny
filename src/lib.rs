@@ -79,6 +79,7 @@ mod schemars08;
 mod serde1;
 
 mod array;
+mod iter;
 mod mirror_std {
     mod cmp;
     mod from;

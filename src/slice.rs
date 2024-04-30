@@ -129,6 +129,18 @@ impl<T> Slice<T> {
     }
 }
 
+/// Known non-empty iterators for [`Slice`].
+impl<T> Slice<T> {
+    pub fn iter_ne(&self) -> NonEmpty<core::slice::Iter<T>> {
+        NonEmpty { inner: self.iter() }
+    }
+    pub fn iter_mut_ne(&mut self) -> NonEmpty<core::slice::IterMut<'_, T>> {
+        NonEmpty {
+            inner: self.iter_mut(),
+        }
+    }
+}
+
 /// [`Slice`] to [`primitive slice`](primitive@slice)
 impl<T> Deref for Slice<T> {
     type Target = [T];

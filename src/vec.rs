@@ -273,6 +273,15 @@ impl<T> Vec<T> {
     }
 }
 
+/// Known non-empty iterator for [`Vec`].
+impl<T> Vec<T> {
+    pub fn into_iter_ne(self) -> NonEmpty<alloc::vec::IntoIter<T>> {
+        NonEmpty {
+            inner: self.into_vec().into_iter(),
+        }
+    }
+}
+
 /// [`Vec`] to [`Slice`]
 impl<T> Deref for Vec<T> {
     type Target = Slice<T>;
