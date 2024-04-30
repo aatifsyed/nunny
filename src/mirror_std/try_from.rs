@@ -109,7 +109,7 @@ impl<T, const N: usize> TryFrom<Box<Slice<T>>> for Box<Array<T, N>> {
     fn try_from(value: Box<Slice<T>>) -> Result<Self, Self::Error> {
         // Safety:
         // - already checked len
-        match value.len().get() == N {
+        match value.len_nonzero().get() == N {
             true => Ok(unsafe { boxed_slice_as_array_unchecked(value) }),
             false => Err(value),
         }
@@ -132,7 +132,7 @@ impl<T, const N: usize> TryFrom<Vec<T>> for Box<Array<T, N>> {
     fn try_from(value: Vec<T>) -> Result<Self, Self::Error> {
         // Safety:
         // - already checked len
-        match value.len().get() == N {
+        match value.len() == N {
             true => Ok(unsafe { boxed_slice_as_array_unchecked(value.into_boxed_slice()) }),
             false => Err(value),
         }
@@ -149,7 +149,7 @@ impl<T, const N: usize> TryFrom<Vec<T>> for Box<Array<T, N>> {
 unsafe fn boxed_slice_as_array_unchecked<T, const N: usize>(
     boxed_slice: Box<Slice<T>>,
 ) -> Box<Array<T, N>> {
-    debug_assert_eq!(boxed_slice.len().get(), N);
+    debug_assert_eq!(boxed_slice.len(), N);
 
     let ptr = Box::into_raw(boxed_slice);
     unsafe { Box::from_raw(ptr as *mut Array<T, N>) }

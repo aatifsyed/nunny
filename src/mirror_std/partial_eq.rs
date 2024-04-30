@@ -120,7 +120,7 @@ where
     T: PartialEq<U>,
 {
     fn eq(&self, other: &&Slice<U>) -> bool {
-        if self.len() != other.len().get() {
+        if self.len() != other.len_nonzero().get() {
             return false;
         }
         let (sa, sb) = self.as_slices();

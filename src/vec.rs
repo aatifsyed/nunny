@@ -185,7 +185,7 @@ impl<T> Vec<T> {
                 // Safety:
                 // - #[repr(transparent)]
                 let dst = unsafe { Box::from_raw(ptr as *mut Slice<T>) };
-                let len1 = dst.len().get();
+                let len1 = dst.len_nonzero().get();
                 assert_eq!(len0, len1);
                 dst
             }
@@ -245,10 +245,6 @@ impl<T> Vec<T> {
     forward_mut! {
         pub fn push(&mut self, value: T);
         pub fn append(&mut self, other: &mut alloc::vec::Vec<T>);
-    }
-    /// Returns the known non-zero length.
-    pub fn len(&self) -> NonZeroUsize {
-        self.as_slice().len()
     }
 
     // pub fn split_off(&mut self, at: NonZeroUsize)
