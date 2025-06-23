@@ -66,4 +66,3 @@ harness = false
 
 [package.metadata.docs.rs]
 all-features = true
-rustdoc-args = ["--cfg", "do_doc_cfg"]
