@@ -37,11 +37,11 @@ quickcheck1 = ["dep:quickcheck1", "std"]
 proptest = ["proptest1"]
 proptest1 = ["dep:proptest1", "std"]
 # This feature will always track the latest (API) version of schemars.
-# Changing it to `schemars09` is not considered a breaking change
-schemars = ["schemars10"]
+# Changing it to a different major version `schemars09` is not considered a breaking change
+schemars = ["schemars1"]
 schemars08 = ["dep:schemars08", "std"]
 schemars09 = ["dep:schemars09", "std"]
-schemars10 = ["dep:schemars10", "std"]
+schemars1 = ["dep:schemars1", "std"]
 
 [dependencies]
 proptest1 = { version = "1.4.0", package = "proptest", optional = true }
@@ -50,7 +50,7 @@ quickcheck1 = { version = "1.0.3", package = "quickcheck", optional = true, defa
 serde1 = { version = "1.0.198", package = "serde", optional = true, default-features = false }
 schemars08 = { version = "0.8", package = "schemars", optional = true, default-features = false }
 schemars09 = { version = "0.9", package = "schemars", optional = true, default-features = false }
-schemars10 = { version = "1", package = "schemars", optional = true, default-features = false }
+schemars1 = { version = "1", package = "schemars", optional = true, default-features = false }
 
 [workspace]
 members = ["gen"]

@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use crate::{Array, Slice, Vec};
-use schemars10::{json_schema, JsonSchema, Schema, SchemaGenerator};
+use schemars1::{json_schema, JsonSchema, Schema, SchemaGenerator};
 
 impl<T> JsonSchema for Vec<T>
 where
@@ -54,7 +54,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use schemars10::schema_for;
+    use schemars1::schema_for;
 
     #[test]
     fn test_schema() {
