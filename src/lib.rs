@@ -88,6 +88,12 @@ mod quickcheck1;
 #[cfg(feature = "schemars08")]
 #[cfg_attr(do_doc_cfg, doc(cfg(feature = "schemars")))]
 mod schemars08;
+#[cfg(feature = "schemars09")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "schemars")))]
+mod schemars09;
+#[cfg(feature = "schemars10")]
+#[cfg_attr(do_doc_cfg, doc(cfg(feature = "schemars")))]
+mod schemars10;
 #[cfg(feature = "serde1")]
 #[cfg_attr(do_doc_cfg, doc(cfg(feature = "serde")))]
 mod serde1;

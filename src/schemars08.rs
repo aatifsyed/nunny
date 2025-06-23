@@ -60,3 +60,28 @@ where
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use schemars08::schema_for;
+
+    #[test]
+    fn test_schema() {
+        let schema = schema_for!(Vec<i32>);
+        println!("{}", serde_json::to_string_pretty(&schema).unwrap());
+        assert_eq!(
+            serde_json::to_value(&schema).unwrap(),
+            serde_json::json!({
+              "$schema": "http://json-schema.org/draft-07/schema#",
+              "title": "NonEmpty_Array_of_int32",
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "minItems": 1
+            })
+        )
+    }
+}
