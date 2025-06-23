@@ -272,7 +272,7 @@ where
 
     /// [`NonEmpty`] version of [`Iterator::unzip`].
     #[cfg(feature = "alloc")]
-    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
     pub fn unzip_vec<A, B>(self) -> (crate::Vec<A>, crate::Vec<B>)
     where
         I: Iterator<Item = (A, B)>,
@@ -322,7 +322,7 @@ where
     }
     /// Collect this iterator into a [`NonEmpty<Vec>`].
     #[cfg(feature = "alloc")]
-    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
     pub fn collect_vec(self) -> crate::Vec<I::Item> {
         // Safety:
         // - NonEmpty<impl Iterator> is only constructed from known NonEmpty items
@@ -332,7 +332,7 @@ where
     }
     /// Collect [`Ok`] items into a [`NonEmpty<Vec>`], short-circuiting on [`Err`].
     #[cfg(feature = "alloc")]
-    #[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
     pub fn try_collect_vec<T, E>(self) -> Result<crate::Vec<T>, E>
     where
         I: Iterator<Item = Result<T, E>>,

@@ -72,30 +72,30 @@
 //!       Fun fact: our tests were generated from [`std`]'s rustdoc!
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(do_doc_cfg, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
 #[cfg(feature = "arbitrary1")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "arbitrary")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "arbitrary")))]
 mod arbitrary1;
 #[cfg(feature = "proptest1")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "proptest")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "proptest")))]
 mod proptest1;
 #[cfg(feature = "quickcheck1")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "quickcheck")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "quickcheck")))]
 mod quickcheck1;
 #[cfg(feature = "schemars08")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "schemars")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "schemars")))]
 mod schemars08;
 #[cfg(feature = "schemars09")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "schemars")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "schemars")))]
 mod schemars09;
 #[cfg(feature = "schemars1")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "schemars")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "schemars")))]
 mod schemars1;
 #[cfg(feature = "serde1")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "serde")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 mod serde1;
 
 mod array;
@@ -108,7 +108,7 @@ mod mirror_std {
 }
 mod slice;
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 mod vec;
 
 use core::{convert::Infallible, fmt, num::NonZeroUsize};
@@ -133,7 +133,7 @@ pub type Array<T, const N: usize> = NonEmpty<[T; N]>;
 pub type Slice<T> = NonEmpty<[T]>;
 /// A non-empty, heap allocated [Vec](alloc::vec::Vec).
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 pub type Vec<T> = NonEmpty<alloc::vec::Vec<T>>;
 
 /// Create a non-empty slice
@@ -199,7 +199,7 @@ macro_rules! array {
 /// let v = vec!["hello"; 0]; // not allowed to be zero!
 /// ```
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 #[macro_export]
 macro_rules! vec {
     ($($el:expr),+ $(,)?) => {

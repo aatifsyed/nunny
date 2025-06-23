@@ -92,7 +92,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<&Slice<U>> for Cow<'_, Slice<T>>
 where
     T: PartialEq<U> + Clone,
@@ -103,7 +103,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<&mut Slice<U>> for Cow<'_, Slice<T>>
 where
     T: PartialEq<U> + Clone,
@@ -114,7 +114,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<&Slice<U>> for VecDeque<T>
 where
     T: PartialEq<U>,
@@ -130,7 +130,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<&Slice<U>> for Vec<T>
 where
     T: PartialEq<U>,
@@ -141,7 +141,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<&mut Slice<U>> for VecDeque<T>
 where
     T: PartialEq<U>,
@@ -152,7 +152,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<&mut Slice<U>> for Vec<T>
 where
     T: PartialEq<U>,
@@ -163,7 +163,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<Slice<U>> for Vec<T>
 where
     T: PartialEq<U>,
@@ -174,7 +174,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<Vec<U>> for &Slice<T>
 where
     T: PartialEq<U>,
@@ -185,7 +185,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<Vec<U>> for &mut Slice<T>
 where
     T: PartialEq<U>,
@@ -196,7 +196,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<Vec<U>> for Cow<'_, Slice<T>>
 where
     T: PartialEq<U> + Clone,
@@ -207,7 +207,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U> PartialEq<Vec<U>> for Slice<T>
 where
     T: PartialEq<U>,
@@ -218,7 +218,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U, const N: usize> PartialEq<&Array<U, N>> for VecDeque<T>
 where
     T: PartialEq<U>,
@@ -229,7 +229,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U, const N: usize> PartialEq<&Array<U, N>> for Vec<T>
 where
     T: PartialEq<U>,
@@ -240,7 +240,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U, const N: usize> PartialEq<&mut Array<U, N>> for VecDeque<T>
 where
     T: PartialEq<U>,
@@ -251,7 +251,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U, const N: usize> PartialEq<Array<U, N>> for VecDeque<T>
 where
     T: PartialEq<U>,
@@ -262,7 +262,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T, U, const N: usize> PartialEq<Array<U, N>> for Vec<T>
 where
     T: PartialEq<U>,

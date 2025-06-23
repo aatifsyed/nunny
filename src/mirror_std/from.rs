@@ -34,7 +34,7 @@ use alloc::{
 use crate::{Array, Slice, Vec};
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<'a, T> From<&'a Slice<T>> for Cow<'a, Slice<T>>
 where
     T: Clone,
@@ -45,7 +45,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<'a, T> From<&'a Vec<T>> for Cow<'a, Slice<T>>
 where
     T: Clone,
@@ -56,7 +56,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<'a, T> From<Cow<'a, Slice<T>>> for Vec<T>
 where
     Slice<T>: ToOwned<Owned = Vec<T>>,
@@ -67,7 +67,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<'a, T> From<Vec<T>> for Cow<'a, Slice<T>>
 where
     T: Clone,
@@ -78,7 +78,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<'a, const N: usize, T> From<&'a Array<T, N>> for Cow<'a, Slice<T>>
 where
     T: Clone,
@@ -89,7 +89,7 @@ where
 }
 
 #[cfg(feature = "std")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "std")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl<const N: usize, K, V> From<Array<(K, V), N>> for HashMap<K, V, RandomState>
 where
     K: Eq + Hash,
@@ -100,7 +100,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, K, V> From<Array<(K, V), N>> for BTreeMap<K, V>
 where
     K: Ord,
@@ -111,7 +111,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> From<&Slice<T>> for Box<Slice<T>>
 where
     T: Clone,
@@ -126,7 +126,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> From<&Slice<T>> for Rc<Slice<T>>
 where
     T: Clone,
@@ -141,7 +141,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> From<&Slice<T>> for Arc<Slice<T>>
 where
     T: Clone,
@@ -156,7 +156,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> From<&Slice<T>> for Vec<T>
 where
     T: Clone,
@@ -170,7 +170,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> From<&mut Slice<T>> for Vec<T>
 where
     T: Clone,
@@ -184,7 +184,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> From<Cow<'_, Slice<T>>> for Box<Slice<T>>
 where
     T: Clone,
@@ -195,7 +195,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> From<Box<Slice<T>>> for Vec<T> {
     fn from(value: Box<Slice<T>>) -> Self {
         let value = Box::into_raw(value);
@@ -210,7 +210,7 @@ impl<T> From<Box<Slice<T>>> for Vec<T> {
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> From<Vec<T>> for Box<Slice<T>> {
     fn from(value: Vec<T>) -> Self {
         value.into_boxed_slice()
@@ -218,7 +218,7 @@ impl<T> From<Vec<T>> for Box<Slice<T>> {
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> From<Vec<T>> for Rc<Slice<T>> {
     fn from(value: Vec<T>) -> Self {
         value.into_boxed_slice().into()
@@ -226,7 +226,7 @@ impl<T> From<Vec<T>> for Rc<Slice<T>> {
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> From<Vec<T>> for Arc<Slice<T>> {
     fn from(value: Vec<T>) -> Self {
         value.into_boxed_slice().into()
@@ -234,7 +234,7 @@ impl<T> From<Vec<T>> for Arc<Slice<T>> {
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, T> From<&Array<T, N>> for Vec<T>
 where
     T: Clone,
@@ -245,7 +245,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, T> From<&mut Array<T, N>> for Vec<T>
 where
     T: Clone,
@@ -256,7 +256,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, T> From<Array<T, N>> for Box<Slice<T>> {
     fn from(value: Array<T, N>) -> Self {
         let value = Box::<[T]>::from(value.into_array());
@@ -267,7 +267,7 @@ impl<const N: usize, T> From<Array<T, N>> for Box<Slice<T>> {
 }
 
 #[cfg(feature = "std")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "std")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl<const N: usize, T> From<Array<T, N>> for HashSet<T, RandomState>
 where
     T: Eq + Hash,
@@ -278,7 +278,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, T> From<Array<T, N>> for BTreeSet<T>
 where
     T: Ord,
@@ -289,7 +289,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, T> From<Array<T, N>> for BinaryHeap<T>
 where
     T: Ord,
@@ -300,7 +300,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, T> From<Array<T, N>> for LinkedList<T> {
     fn from(value: Array<T, N>) -> Self {
         value.into_iter().collect()
@@ -308,7 +308,7 @@ impl<const N: usize, T> From<Array<T, N>> for LinkedList<T> {
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, T> From<Array<T, N>> for VecDeque<T> {
     fn from(value: Array<T, N>) -> Self {
         value.into_iter().collect()
@@ -316,7 +316,7 @@ impl<const N: usize, T> From<Array<T, N>> for VecDeque<T> {
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, T> From<Array<T, N>> for Rc<Slice<T>> {
     fn from(value: Array<T, N>) -> Self {
         let value = Rc::<[T]>::from(value.into_array());
@@ -328,7 +328,7 @@ impl<const N: usize, T> From<Array<T, N>> for Rc<Slice<T>> {
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, T> From<Array<T, N>> for Arc<Slice<T>> {
     fn from(value: Array<T, N>) -> Self {
         let value = Arc::<[T]>::from(value.into_array());
@@ -339,7 +339,7 @@ impl<const N: usize, T> From<Array<T, N>> for Arc<Slice<T>> {
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<const N: usize, T> From<Array<T, N>> for Vec<T> {
     fn from(value: Array<T, N>) -> Self {
         let value = alloc::vec::Vec::from(value.into_array());

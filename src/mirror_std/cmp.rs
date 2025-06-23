@@ -42,7 +42,7 @@ where
 }
 
 #[cfg(feature = "alloc")]
-#[cfg_attr(do_doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T> PartialOrd<Vec<T>> for Vec<T>
 where
     T: PartialOrd,
