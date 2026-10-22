@@ -388,7 +388,7 @@ const unsafe fn non_zero_usize(n: usize) -> NonZeroUsize {
 #[track_caller]
 const unsafe fn unreachable() -> ! {
     match cfg!(debug_assertions) {
-        true => unreachable(),
+        true => unreachable!(),
         false => unsafe { core::hint::unreachable_unchecked() },
     }
 }
